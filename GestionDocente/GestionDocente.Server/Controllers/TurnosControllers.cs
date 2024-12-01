@@ -1,5 +1,6 @@
 ﻿using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
+using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,10 +62,16 @@ namespace GestionDocente.Server.Controllers
         #endregion
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post(Turno entidad)
+        public async Task<ActionResult<int>> Post(CrearTurnoDTO entidadDTO)
         {
             try
             {
+                Turno entidad = new Turno();
+                entidad.Sede = entidadDTO.Sede;
+                entidad.Horario = entidadDTO.Horario;
+                entidad.AnnoCicloLectivo = entidadDTO.AnnoCicloLectivo;
+
+
                 context.Turnos.Add(entidad);
                 await context.SaveChangesAsync();
                 return entidad.Id;
@@ -88,7 +95,7 @@ namespace GestionDocente.Server.Controllers
                                   .FirstOrDefaultAsync();
             if (d == null)
             {
-                return NotFound("No existe la orden buscado");
+                return NotFound("No existe el turno buscado");
             }
 
             d.Profesor = entidad.Profesor;
@@ -114,7 +121,7 @@ namespace GestionDocente.Server.Controllers
             var existe = await context.Turnos.AnyAsync(x => x.Id == id);
             if (!existe)
             {
-                return NotFound($"La oreden {id} no existe");
+                return NotFound($"El usuario {id} no existe");
             }
             Turno EntidadABorrar = new Turno();
             EntidadABorrar.Id = id;

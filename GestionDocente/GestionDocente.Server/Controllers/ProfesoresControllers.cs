@@ -1,5 +1,6 @@
 ﻿using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
+using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,10 +48,15 @@ namespace GestionDocente.Server.Controllers
         #endregion
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post(Profesor entidad)
+        public async Task<ActionResult<int>> Post(CrearProfesorDTO entidadDTO)
         {
             try
             {
+                Profesor entidad = new Profesor();
+                entidad.Usuario = entidadDTO.Usuario;
+                entidad.Estado = entidadDTO.Estado;
+
+
                 context.Profesores.Add(entidad);
                 await context.SaveChangesAsync();
                 return entidad.Id;
@@ -74,7 +80,7 @@ namespace GestionDocente.Server.Controllers
                                   .FirstOrDefaultAsync();
             if (d == null)
             {
-                return NotFound("No existe la orden buscado");
+                return NotFound("No existe el profesor buscado");
             }
 
             d.Usuario = entidad.Usuario;

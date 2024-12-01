@@ -1,5 +1,6 @@
 ﻿using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
+using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,10 +34,14 @@ namespace GestionDocente.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post(Usuario entidad)
+        public async Task<ActionResult<int>> Post(CrearUsuarioDTO entidadDTO)
         {
             try
             {
+                Usuario entidad = new Usuario();
+                entidad.Email = entidadDTO.Email;
+                entidad.Contrasena = entidadDTO.Contrasena;
+
                 context.Usuarios.Add(entidad);
                 await context.SaveChangesAsync();
                 return entidad.Id;
@@ -60,7 +65,7 @@ namespace GestionDocente.Server.Controllers
                                   .FirstOrDefaultAsync();
             if (d == null)
             {
-                return NotFound("No existe la orden buscado");
+                return NotFound("No existe el usuario buscado");
             }
 
             d.Persona = entidad.Persona;
