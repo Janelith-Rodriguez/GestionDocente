@@ -1,4 +1,5 @@
-﻿using GestionDocente.BD.Data;
+﻿using AutoMapper;
+using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
 using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +12,13 @@ namespace GestionDocente.Server.Controllers
     public class TurnosControllers : ControllerBase
     {
         private readonly Context context;
-        public TurnosControllers(Context context)
+        private readonly IMapper mapper;
+
+        public TurnosControllers(Context context,
+                                 IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
         [HttpGet]
         public async Task<ActionResult<List<Turno>>> Get()
@@ -66,19 +71,20 @@ namespace GestionDocente.Server.Controllers
         {
             try
             {
-                Turno entidad = new Turno();
-                entidad.Sede = entidadDTO.Sede;
-                entidad.Horario = entidadDTO.Horario;
-                entidad.AnnoCicloLectivo = entidadDTO.AnnoCicloLectivo;
+                //Turno entidad = new Turno();
+                //entidad.Sede = entidadDTO.Sede;
+                //entidad.Horario = entidadDTO.Horario;
+                //entidad.AnnoCicloLectivo = entidadDTO.AnnoCicloLectivo;
 
+                Turno entidad = mapper.Map<Turno>(entidadDTO);
 
                 context.Turnos.Add(entidad);
                 await context.SaveChangesAsync();
                 return entidad.Id;
             }
-            catch (Exception e)
+            catch (Exception err)
             {
-                return BadRequest(e.Message);
+                return BadRequest(err.Message);
                 throw;
             }
         }

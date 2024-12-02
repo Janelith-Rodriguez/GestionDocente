@@ -1,4 +1,5 @@
-﻿using GestionDocente.BD.Data;
+﻿using AutoMapper;
+using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
 using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,13 @@ namespace GestionDocente.Server.Controllers
     public class ProfesoresControllers : ControllerBase
     {
         private readonly Context context;
+        private readonly IMapper mapper;
 
-        public ProfesoresControllers(Context context)
+        public ProfesoresControllers(Context context,
+                                     IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
 
         #region Peticiones Get
@@ -52,18 +56,19 @@ namespace GestionDocente.Server.Controllers
         {
             try
             {
-                Profesor entidad = new Profesor();
-                entidad.Usuario = entidadDTO.Usuario;
-                entidad.Estado = entidadDTO.Estado;
+                //Profesor entidad = new Profesor();
+                //entidad.Usuario = entidadDTO.Usuario;
+                //entidad.Estado = entidadDTO.Estado;
 
+                Profesor entidad = mapper.Map<Profesor>(entidadDTO);
 
                 context.Profesores.Add(entidad);
                 await context.SaveChangesAsync();
                 return entidad.Id;
             }
-            catch (Exception e)
+            catch (Exception err)
             {
-                return BadRequest(e.Message);
+                return BadRequest(err.Message);
                 throw;
             }
         }

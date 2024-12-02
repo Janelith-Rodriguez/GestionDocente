@@ -1,4 +1,5 @@
-﻿using GestionDocente.BD.Data;
+﻿using AutoMapper;
+using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
 using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +12,13 @@ namespace GestionDocente.Server.Controllers
     public class UsuariosControllers : ControllerBase
     {
         private readonly Context context;
-        public UsuariosControllers(Context context)
+        private readonly IMapper mapper;
+
+        public UsuariosControllers(Context context,
+                                   IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
         [HttpGet]
         public async Task<ActionResult<List<Usuario>>> Get()
@@ -38,17 +43,19 @@ namespace GestionDocente.Server.Controllers
         {
             try
             {
-                Usuario entidad = new Usuario();
-                entidad.Email = entidadDTO.Email;
-                entidad.Contrasena = entidadDTO.Contrasena;
+                //Usuario entidad = new Usuario();
+                //entidad.Email = entidadDTO.Email;
+                //entidad.Contrasena = entidadDTO.Contrasena;
+
+                Usuario entidad = mapper.Map<Usuario>(entidadDTO);
 
                 context.Usuarios.Add(entidad);
                 await context.SaveChangesAsync();
                 return entidad.Id;
             }
-            catch (Exception e)
+            catch (Exception err)
             {
-                return BadRequest(e.Message);
+                return BadRequest(err.Message);
                 throw;
             }
         }
