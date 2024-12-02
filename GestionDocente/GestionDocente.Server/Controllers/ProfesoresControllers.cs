@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
+using GestionDocente.Server.Repositorio;
 using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,13 +12,13 @@ namespace GestionDocente.Server.Controllers
     [Route("api/Profesores")]
     public class ProfesoresControllers : ControllerBase
     {
-        private readonly Context context;
+        private readonly IProfesorRepositorio repositorio;
         private readonly IMapper mapper;
 
-        public ProfesoresControllers(Context context,
+        public ProfesoresControllers(IProfesorRepositorio repositorio,
                                      IMapper mapper)
         {
-            this.context = context;
+            this.repositorio = repositorio;
             this.mapper = mapper;
         }
 
@@ -26,14 +27,16 @@ namespace GestionDocente.Server.Controllers
         [HttpGet]  //api/Profesores
         public async Task<ActionResult<List<Profesor>>> Get()
         {
-            return await context.Profesores.ToListAsync();
+            return await repositorio.Select();
+            //return await context.Profesores.ToListAsync();
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Profesor>> Get(int id)
         {
-            Profesor? d = await context.Profesores
-                              .FirstOrDefaultAsync(x => x.Id == id);
+            Profesor? d = await repositorio.SelectById(id);
+            //Profesor ? d = await context.Profesores
+            //                  .FirstOrDefaultAsync(x => x.Id == id);
             if (d == null)
             {
                 return NotFound();
@@ -44,7 +47,8 @@ namespace GestionDocente.Server.Controllers
         [HttpGet("existe/{id:int}")] //api/Profesores/existe
         public async Task<ActionResult<bool>> Existe(int id)
         {
-            var existe = await context.Profesores.AnyAsync(x => x.Id == id);
+            var existe = await repositorio.Existe(id);
+            //var existe = await context.Profesores.AnyAsync(x => x.Id == id);
             return existe;
 
         }
@@ -62,14 +66,16 @@ namespace GestionDocente.Server.Controllers
 
                 Profesor entidad = mapper.Map<Profesor>(entidadDTO);
 
-                context.Profesores.Add(entidad);
-                await context.SaveChangesAsync();
-                return entidad.Id;
+                return await repositorio.Insert(entidad);
+
+                //context.Profesores.Add(entidad);
+                //await context.SaveChangesAsync();
+                //return entidad.Id;
             }
             catch (Exception err)
             {
                 return BadRequest(err.Message);
-                throw;
+                //throw;
             }
         }
 
@@ -80,9 +86,10 @@ namespace GestionDocente.Server.Controllers
             {
                 return BadRequest("Datos incorrectos");
             }
-            var d = await context.Profesores
-                                  .Where(reg => reg.Id == id)
-                                  .FirstOrDefaultAsync();
+            var d = await repositorio.SelectById(id);
+            //var d = await context.Profesores
+            //                      .Where(reg => reg.Id == id)
+            //                      .FirstOrDefaultAsync();
             if (d == null)
             {
                 return NotFound("No existe el profesor buscado");
@@ -91,10 +98,12 @@ namespace GestionDocente.Server.Controllers
             d.Usuario = entidad.Usuario;
             d.Estado = entidad.Estado;
             d.Activo = entidad.Activo;
+
             try
             {
-                context.Profesores.Update(d);
-                await context.SaveChangesAsync();
+                await repositorio.Update(id, d);
+                //context.Profesores.Update(d);
+                //await context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception e)
@@ -106,17 +115,26 @@ namespace GestionDocente.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var existe = await context.Profesores.AnyAsync(x => x.Id == id);
+            var existe = await repositorio.Existe(id);
+            //var existe = await context.Profesores.AnyAsync(x => x.Id == id);
             if (!existe)
             {
                 return NotFound($"El profesor {id} no existe");
             }
-            Profesor EntidadABorrar = new Profesor();
-            EntidadABorrar.Id = id;
+            //Profesor EntidadABorrar = new Profesor();
+            //EntidadABorrar.Id = id;
 
-            context.Remove(EntidadABorrar);
-            await context.SaveChangesAsync();
-            return Ok();
+            //context.Remove(EntidadABorrar);
+            //await context.SaveChangesAsync();
+            //return Ok();
+            if (await repositorio.Delete(id))
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
     }
 }

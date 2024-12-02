@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GestionDocente.BD.Data
 {
-    public class EntityBase
+    public class EntityBase : IEntityBase
     {
         public int Id { get; set; }
         public bool Activo { get; set; }

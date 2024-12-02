@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
+using GestionDocente.Server.Repositorio;
 using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,26 +12,25 @@ namespace GestionDocente.Server.Controllers
     [Route("api/Turnos")]
     public class TurnosControllers : ControllerBase
     {
-        private readonly Context context;
+        private readonly ITurnoRepositorio repositorio;
         private readonly IMapper mapper;
 
-        public TurnosControllers(Context context,
+        public TurnosControllers(ITurnoRepositorio repositorio,
                                  IMapper mapper)
         {
-            this.context = context;
+            this.repositorio = repositorio;
             this.mapper = mapper;
         }
         [HttpGet]
         public async Task<ActionResult<List<Turno>>> Get()
         {
-            return await context.Turnos.ToListAsync();
+            return await repositorio.Select();
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Turno>> GetById(int id)
         {
-            Turno? d = await context.Turnos
-                              .FirstOrDefaultAsync(x => x.Id == id);
+            Turno? d = await repositorio.SelectById(id);
             if (d == null)
             {
                 return NotFound();
@@ -78,14 +78,16 @@ namespace GestionDocente.Server.Controllers
 
                 Turno entidad = mapper.Map<Turno>(entidadDTO);
 
-                context.Turnos.Add(entidad);
-                await context.SaveChangesAsync();
-                return entidad.Id;
+                return await repositorio.Insert(entidad);
+
+                //context.Turnos.Add(entidad);
+                //await context.SaveChangesAsync();
+                //return entidad.Id;
             }
             catch (Exception err)
             {
                 return BadRequest(err.Message);
-                throw;
+                //throw;
             }
         }
 
@@ -96,12 +98,13 @@ namespace GestionDocente.Server.Controllers
             {
                 return BadRequest("Datos incorrectos");
             }
-            var d = await context.Turnos
-                                  .Where(reg => reg.Id == id)
-                                  .FirstOrDefaultAsync();
+            var d = await repositorio.SelectById(id);
+            //var d = await context.Turnos
+            //                      .Where(reg => reg.Id == id)
+            //                      .FirstOrDefaultAsync();
             if (d == null)
             {
-                return NotFound("No existe el turno buscado");
+                return NotFound("No existe el turno buscado.");
             }
 
             d.Profesor = entidad.Profesor;
@@ -111,8 +114,9 @@ namespace GestionDocente.Server.Controllers
             d.Activo = entidad.Activo;
             try
             {
-                context.Turnos.Update(d);
-                await context.SaveChangesAsync();
+                await repositorio.Update(id, d);
+                //context.Turnos.Update(d);
+                //await context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception e)
@@ -124,17 +128,26 @@ namespace GestionDocente.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var existe = await context.Turnos.AnyAsync(x => x.Id == id);
+            var existe = await repositorio.Existe(id);
+            //var existe = await context.Turnos.AnyAsync(x => x.Id == id);
             if (!existe)
             {
-                return NotFound($"El usuario {id} no existe");
+                return NotFound($"El usuario {id} no existe.");
             }
-            Turno EntidadABorrar = new Turno();
-            EntidadABorrar.Id = id;
+            //Turno EntidadABorrar = new Turno();
+            //EntidadABorrar.Id = id;
 
-            context.Remove(EntidadABorrar);
-            await context.SaveChangesAsync();
-            return Ok();
+            //context.Remove(EntidadABorrar);
+            //await context.SaveChangesAsync();
+            //return Ok();
+            if (await repositorio.Delete(id))
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
     }
 }
