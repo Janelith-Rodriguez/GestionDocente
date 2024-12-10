@@ -19,7 +19,9 @@ namespace GestionDocente.BD.Data
         public DbSet<Correlatividad> Correlatividades { get; set; }
         public DbSet<CUPOF_Coordinador> CUPOF_Coordinadores { get; set; }
         public DbSet<CUPOF_Profesor> CUPOF_Profesores { get; set; }
-        public DbSet<CursadoMateria> CursadoMaterias { get; set; }
+    
+
+        public DbSet<CursadoMateria> CursadosMateria { get; set; }
         public DbSet<Evaluacion> Evaluaciones { get; set; }
         public DbSet<InscripcionCarrera> InscripcionCarreras { get; set; }
         public DbSet<MAB> MAB { get; set; }
