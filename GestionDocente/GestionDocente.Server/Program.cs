@@ -1,4 +1,5 @@
 using GestionDocente.BD.Data;
+using GestionDocente.BD.Data.Entity;
 using GestionDocente.Server.Repositorio;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -20,8 +21,12 @@ builder.Services.AddDbContext<Context>(op => op.UseSqlServer("name=conn"));
 builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddScoped<IProfesorRepositorio, ProfesorRepositorio>();
+builder.Services.AddScoped<ICursadoMateriaRepositorio, CursadoMateriaRepositorio>();
 builder.Services.AddScoped<ITurnoRepositorio, TurnoRepositorio>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+builder.Services.AddScoped<ICUPOFProfesorRepositorio, CUPOFProfesorRepositorio>();
+
+
 
 //---------------------------------------------------------------------------------------------------
 //Construcción de la aplicación

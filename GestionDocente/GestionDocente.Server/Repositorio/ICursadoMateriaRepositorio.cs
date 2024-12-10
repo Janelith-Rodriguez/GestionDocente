@@ -1,6 +1,5 @@
 ﻿using GestionDocente.BD.Data.Entity;
 using GestionDocente.Server.Repositorio;
-using GestionDocente.BD.Data.Entity;
 
 namespace GestionDocente.Server.Repositorio
 {

@@ -22,6 +22,10 @@ namespace GestionDocente.Server.Util
             CreateMap<CrearProfesorDTO, Profesor>();
             //_Turno_______________________________________________________________________________________________________________________________
             CreateMap<CrearTurnoDTO, Turno>();
+
+
+            CreateMap<CrearCursadoMateriaDTO, CursadoMateria>();
+            CreateMap<CUPOFProfesorDTO, CUPOF_Profesor>();
         }
     }
 }
