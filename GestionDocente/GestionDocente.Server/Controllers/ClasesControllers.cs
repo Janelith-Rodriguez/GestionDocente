@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
+using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +45,7 @@ namespace GestionDocente.Server.Controllers
         }
         
         [HttpPost]
-        public async Task<ActionResult<int>> Post(Clase entidadDTO)
+        public async Task<ActionResult<int>> Post(CrearClaseDTO entidadDTO)
         {
             try
             {

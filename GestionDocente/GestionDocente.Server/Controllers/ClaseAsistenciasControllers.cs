@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
+using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,8 @@ namespace GestionDocente.Server.Controllers
         private readonly Context context;
         private readonly IMapper mapper;
 
-        public ClaseAsistenciasControllers(Context context,IMapper mapper)
+        public ClaseAsistenciasControllers(Context context,
+                                           IMapper mapper)
         {
             this.context = context;
             this.mapper = mapper;
@@ -42,7 +44,7 @@ namespace GestionDocente.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post(ClaseAsistencia entidadDTO)
+        public async Task<ActionResult<int>> Post(CrearClaseAsistenciaDTO entidadDTO)
         {
             try
             {
