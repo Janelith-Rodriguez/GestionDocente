@@ -30,8 +30,8 @@ builder.Services.AddScoped<ICUPOFProfesorRepositorio, CUPOFProfesorRepositorio>(
 builder.Services.AddScoped<IMABRepositorio, MABRepositorio>();
 builder.Services.AddScoped<INotaRepositorio, NotaRepositorio>();
 builder.Services.AddScoped<IEvaluacionRepositorio, EvaluacionRepositorio>();
-
-
+builder.Services.AddScoped<IClaseRepositorio, ClaseRepositorio>();
+builder.Services.AddScoped<IClaseAsistenciaRepositorio, ClaseAsistenciaRepositorio>();
 
 //---------------------------------------------------------------------------------------------------
 //Construcción de la aplicación

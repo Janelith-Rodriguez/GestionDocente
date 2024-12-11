@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
+using GestionDocente.Server.Repositorio;
 using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -12,84 +13,69 @@ namespace GestionDocente.Server.Controllers
     [Route("api/Clases")]
     public class ClasesControllers : ControllerBase
     {
-        private readonly Context context;
-        private readonly IMapper mapper;
+        private readonly IClaseRepositorio repositorio;
+        //private readonly IMapper mapper;
 
-        public ClasesControllers(Context context,
-                                 IMapper mapper)
+        public ClasesControllers(IClaseRepositorio repositorio)
         {
-            this.context = context;
-            this.mapper = mapper;
+            this.repositorio = repositorio;
+            //this.mapper = mapper;
         }
         [HttpGet]
         public async Task<ActionResult<List<Clase>>> Get() 
         {
-            return await context.Clases.ToListAsync();
+            return await repositorio.Select();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Clase>> GetById(int id)
+        public async Task<ActionResult<Clase>> Get(int id)
         {
-            //Busca la clase en la basse de datos utilizando el ID
-            var clase = await context.Clases.FindAsync(id);
-
-            //si no se encuentra la clase, devuelve un error 404
-            if (clase == null)
+            Clase? d = await repositorio.SelectById(id);
+            if (d == null)
             {
-                return NotFound($"No se encontro la clase con el ID {id}.");
+                return NotFound();
             }
-
-            //si la clase existe, devuelve la informacion de la clase
-            return Ok(clase);
-
+            return d;
+           
         }
-        
+
+        [HttpGet("existe/{id:int}")]
+        public async Task<ActionResult<bool>> Existe(int id)
+        {
+            return await repositorio.Existe(id);
+           
+        }
+
         [HttpPost]
-        public async Task<ActionResult<int>> Post(CrearClaseDTO entidadDTO)
+        public async Task<ActionResult<int>> Post(Clase entidad)
         {
             try
             {
-                var d = mapper.Map<Clase>(entidadDTO);
-                //Clase entidad = new Clase();
-                //entidad.Id = entidadDTO.Id;
-                //entidad.Turno = entidadDTO.Turno;
-                //entidad.Fecha = entidadDTO.Fecha;
-                Clase entidad = mapper.Map<Clase>(entidadDTO);
-
-                context.Clases.Add(entidad);
-                await context.SaveChangesAsync();
-                return entidad.Id;
+                return await repositorio.Insert(entidad);
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
-            }
-
-
+            }        
         }
 
         [HttpPut("{id:int}")] //api/Clase/
-        public async Task<ActionResult>Put(int id, [FromBody] Clase entidad)
+        public async Task<ActionResult> Put(int id, [FromBody] Clase entidad)
         {
-            if (id != entidad.Id)
-            {
-                return BadRequest("Datos Incorrectos");
-            }
-            var d = await context.Clases.
-                          Where(e => e.Id == id)
-                          .FirstOrDefaultAsync();
-            if (d == null)
-            {
-                return NotFound("No existe la clase buscada.");
-            }
-            d.Turno=entidad.Turno;
-            d.Fecha = entidad.Fecha;
-            d.Activo=entidad.Activo;
-
             try
             {
-                context.Clases.Update(d);
-                await context.SaveChangesAsync();
+
+
+                if (id != entidad.Id)
+                {
+                    return BadRequest("Datos Incorrectos");
+                }
+                var d = await repositorio.Update(id, entidad);
+
+                if (!d)
+                {
+                    return BadRequest("No existe la clase buscada.");
+                }
                 return Ok();
             }
             catch (Exception e)
@@ -102,18 +88,13 @@ namespace GestionDocente.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var existe = await context.Clases.AnyAsync(x => x.Id==id); 
-            if (!existe)
+            var resp = await repositorio.Delete(id);
+            if (!resp)
             {
-                return NotFound($"La clase {id} no existe.");
+                return BadRequest("La clase no se pudo borrar");
+                
             }
-            Clase EntidadABorrar = new Clase();
-            EntidadABorrar.Id = id;
-
-            context.RemoveRange(EntidadABorrar);
-            await context.SaveChangesAsync();
             return Ok();
-            
         }
     }
 }

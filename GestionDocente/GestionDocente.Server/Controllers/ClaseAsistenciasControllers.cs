@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
+using GestionDocente.Server.Repositorio;
 using GestionDocente.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,54 +12,52 @@ namespace GestionDocente.Server.Controllers
     [Route("api/ClaseAsistencias")]
     public class ClaseAsistenciasControllers : ControllerBase
     {
-        private readonly Context context;
+        private readonly IClaseAsistenciaRepositorio repositorio;
         private readonly IMapper mapper;
 
-        public ClaseAsistenciasControllers(Context context,
+        public ClaseAsistenciasControllers(IClaseAsistenciaRepositorio repositorio,
                                            IMapper mapper)
         {
-            this.context = context;
+            this.repositorio = repositorio;
             this.mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<ClaseAsistencia>>> Get()
         {
-            return await context.ClasesAsistencias.ToListAsync();
+            return await repositorio.Select();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ClaseAsistencia>> GetById(int id)
+        public async Task<ActionResult<ClaseAsistencia>> Get(int id)
         {
             // Busca la clase asistencia en la base de datos utilizando el ID
-            var claseAsistencia = await context.ClasesAsistencias.FindAsync(id);
+            ClaseAsistencia? d = await repositorio.SelectById(id);
 
             // Si no se encuentra la clase asistencia, devuelve un error 404
-            if (claseAsistencia == null)
+            if (d == null)
             {
                 return NotFound($"No se encontró la clase asistencia con el ID {id}.");
             }
 
             // Si la clase asistencia existe, devuelve la información
-            return Ok(claseAsistencia);
+            return d;
         }
 
+        [HttpGet("existe/{id:int}")]
+        public async Task<ActionResult<bool>> Existe(int id)
+        {
+            var existe = await repositorio.Existe(id);
+            return existe;
+        }
         [HttpPost]
-        public async Task<ActionResult<int>> Post(CrearClaseAsistenciaDTO entidadDTO)
+        public async Task<ActionResult<int>> Post(ClaseAsistencia entidad)
         {
             try
-            {
-                var d = mapper.Map<ClaseAsistencia>(entidadDTO);
-                //ClaseAsistencia entidad = new ClaseAsistencia();
-                //entidad.Id = entidadDTO.Id;
-                //entidad.Clase = entidadDTO.Clase;
-                //entidad.Asistencia = entidadDTO.Asistencia;
-                //entidad.Observacion= entidadDTO.Observacion;
-                ClaseAsistencia entidad = mapper.Map<ClaseAsistencia>(entidadDTO);
+            { 
+                //ClaseAsistencia entidad = mapper.Map<ClaseAsistencia>(entidadDTO);
 
-                context.ClasesAsistencias.Add(entidad);
-                await context.SaveChangesAsync();
-                return entidad.Id;
+                return await repositorio.Insert(entidad);
             }
             catch (Exception e)
             {
@@ -71,27 +70,21 @@ namespace GestionDocente.Server.Controllers
         [HttpPut("{id:int}")] //api/ClaseAsistencia/
         public async Task<ActionResult> Put(int id, [FromBody] ClaseAsistencia entidad)
         {
-            if (id != entidad.Id)
-            {
-                return BadRequest("Datos Incorrectos");
-            }
-            var d = await context.ClasesAsistencias.
-                          Where(e => e.Id == id)
-                          .FirstOrDefaultAsync();
-            if (d == null)
-            {
-                return NotFound("No existe la claseasistencia buscada.");
-            }
-            d.Clase  = entidad.Clase;
-            d.Asistencia = entidad.Asistencia;
-            d.Observacion = entidad.Observacion;
-            d.Activo = entidad.Activo;
-
             try
             {
-                context.ClasesAsistencias.Update(d);
-                await context.SaveChangesAsync();
+
+                if (id != entidad.Id)
+                {
+                    return BadRequest("Datos Incorrectos");
+                }
+                var d = await repositorio.Update(id, entidad);
+
+                if (!d)
+                {
+                    return BadRequest("No se pudo actualiza la clase buscada.");
+                }
                 return Ok();
+
             }
             catch (Exception e)
             {
@@ -103,18 +96,11 @@ namespace GestionDocente.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var existe = await context.ClasesAsistencias.AnyAsync(x => x.Id == id);
-            if (!existe)
+            var resp = await repositorio.Delete(id);
+            if (!resp)
             {
-                return NotFound($"La claseasistencia {id} no existe.");
-            }
-            ClaseAsistencia EntidadABorrar = new ClaseAsistencia();
-            EntidadABorrar.Id = id;
-
-            context.RemoveRange(EntidadABorrar);
-            await context.SaveChangesAsync();
-            return Ok();
-
+                return BadRequest("La claseasistencia no se pudo borrar");
+            }            return Ok();
         }
     }
 }
