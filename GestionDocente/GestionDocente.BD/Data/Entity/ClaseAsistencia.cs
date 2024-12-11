@@ -15,9 +15,6 @@ namespace GestionDocente.BD.Data.Entity
     {
         public int CursadoMateriaId { get; set; }
         public CursadoMateria CursadoMateria { get; set; }
-
-
-
         public int ClaseId { get; set; }
         public Clase Clase { get; set; }
 
