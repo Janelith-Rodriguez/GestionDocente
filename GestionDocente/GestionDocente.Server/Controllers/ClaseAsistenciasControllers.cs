@@ -39,10 +39,16 @@ namespace GestionDocente.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post(ClaseAsistencia entidad)
+        public async Task<ActionResult<int>> Post(ClaseAsistencia entidadDTO)
         {
             try
             {
+                ClaseAsistencia entidad = new ClaseAsistencia();
+                entidad.Id = entidadDTO.Id;
+                entidad.Clase = entidadDTO.Clase;
+                entidad.Asistencia = entidadDTO.Asistencia;
+                entidad.Observacion= entidadDTO.Observacion;
+
                 context.ClasesAsistencias.Add(entidad);
                 await context.SaveChangesAsync();
                 return entidad.Id;
