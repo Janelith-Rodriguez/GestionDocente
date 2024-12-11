@@ -27,6 +27,9 @@ builder.Services.AddScoped<ICursadoMateriaRepositorio, CursadoMateriaRepositorio
 builder.Services.AddScoped<ITurnoRepositorio, TurnoRepositorio>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<ICUPOFProfesorRepositorio, CUPOFProfesorRepositorio>();
+builder.Services.AddScoped<IMABRepositorio, MABRepositorio>();
+builder.Services.AddScoped<INotaRepositorio, NotaRepositorio>();
+builder.Services.AddScoped<IEvaluacionRepositorio, EvaluacionRepositorio>();
 
 
 
