@@ -1,4 +1,5 @@
-﻿using GestionDocente.BD.Data;
+﻿using AutoMapper;
+using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,12 @@ namespace GestionDocente.Server.Controllers
     public class ClaseAsistenciasControllers : ControllerBase
     {
         private readonly Context context;
+        private readonly IMapper mapper;
 
-        public ClaseAsistenciasControllers(Context context)
+        public ClaseAsistenciasControllers(Context context,IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpGet]
@@ -43,11 +46,13 @@ namespace GestionDocente.Server.Controllers
         {
             try
             {
-                ClaseAsistencia entidad = new ClaseAsistencia();
-                entidad.Id = entidadDTO.Id;
-                entidad.Clase = entidadDTO.Clase;
-                entidad.Asistencia = entidadDTO.Asistencia;
-                entidad.Observacion= entidadDTO.Observacion;
+                var d = mapper.Map<ClaseAsistencia>(entidadDTO);
+                //ClaseAsistencia entidad = new ClaseAsistencia();
+                //entidad.Id = entidadDTO.Id;
+                //entidad.Clase = entidadDTO.Clase;
+                //entidad.Asistencia = entidadDTO.Asistencia;
+                //entidad.Observacion= entidadDTO.Observacion;
+                ClaseAsistencia entidad = mapper.Map<ClaseAsistencia>(entidadDTO);
 
                 context.ClasesAsistencias.Add(entidad);
                 await context.SaveChangesAsync();

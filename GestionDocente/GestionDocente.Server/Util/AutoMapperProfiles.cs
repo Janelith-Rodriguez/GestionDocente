@@ -8,6 +8,10 @@ namespace GestionDocente.Server.Util
     {
         public AutoMapperProfiles()
         {
+            //ClaseAsistencia--------------------------------------------------------------------------------------------------
+            CreateMap<CrearClaseAsistenciaDTO, ClaseAsistencia>();
+            //Clase------------------------------------------------------------------------------------------------------------
+            CreateMap<CrearClaseDTO, Clase>();
             //_usuario________________________________________________________________________________________________________________________________
             CreateMap<CrearUsuarioDTO, Usuario>();
             //CreateMap<UsuarioDTO, Usuario>();

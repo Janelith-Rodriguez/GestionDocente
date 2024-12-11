@@ -1,4 +1,5 @@
-﻿using GestionDocente.BD.Data;
+﻿using AutoMapper;
+using GestionDocente.BD.Data;
 using GestionDocente.BD.Data.Entity;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,13 @@ namespace GestionDocente.Server.Controllers
     public class ClasesControllers : ControllerBase
     {
         private readonly Context context;
+        private readonly IMapper mapper;
 
-        public ClasesControllers(Context context)
+        public ClasesControllers(Context context,
+                                 IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
         [HttpGet]
         public async Task<ActionResult<List<Clase>>> Get() 
@@ -40,10 +44,17 @@ namespace GestionDocente.Server.Controllers
         }
         
         [HttpPost]
-        public async Task<ActionResult<int>> Post(Clase entidad)
+        public async Task<ActionResult<int>> Post(Clase entidadDTO)
         {
             try
             {
+                var d = mapper.Map<Clase>(entidadDTO);
+                //Clase entidad = new Clase();
+                //entidad.Id = entidadDTO.Id;
+                //entidad.Turno = entidadDTO.Turno;
+                //entidad.Fecha = entidadDTO.Fecha;
+                Clase entidad = mapper.Map<Clase>(entidadDTO);
+
                 context.Clases.Add(entidad);
                 await context.SaveChangesAsync();
                 return entidad.Id;
