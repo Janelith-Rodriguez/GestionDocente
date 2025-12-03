@@ -1,0 +1,112 @@
+﻿@page "/correlatividades"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject ICorrelatividadServicio CorrelatividadServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Correlatividades</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="CrearNuevo">Crear Nueva</button>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Materia Plan ID</th>
+                <th>Materia Correlativa ID</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in correlatividades)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.MateriaEnPlanEstudioId</td>
+                    <td>@item.MateriaCorrelativaId</td>
+                    <td>@(item.Activo ? "Sí" : "No")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => Editar(item.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(item)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Correlatividad> correlatividades = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        error = false;
+        StateHasChanged();
+
+        var respuesta = await CorrelatividadServicio.GetAll("api/Correlatividades");
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            correlatividades = respuesta.Respuesta ?? new List<Correlatividad>();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private void CrearNuevo()
+    {
+        Navigation.NavigateTo("/correlatividades/crear");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/correlatividades/editar/{id}");
+    }
+
+    private async Task Eliminar(Correlatividad correlatividad)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro de eliminar esta correlatividad?"))
+            return;
+
+        var respuesta = await CorrelatividadServicio.Delete("api/Correlatividades", correlatividad.Id);
+
+        if (respuesta.Error)
+        {
+            mensajeError = await respuesta.ObtenerError();
+            error = true;
+        }
+        else
+        {
+            await CargarDatos();
+        }
+    }
+}

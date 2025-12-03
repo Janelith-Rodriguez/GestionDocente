@@ -1,0 +1,79 @@
+﻿@page "/notas/crear"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject INotaServicio NotaServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Crear Nota</h3>
+
+<EditForm Model="@nuevaNota" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="evaluacionId">Evaluación ID:</label>
+        <InputNumber id="evaluacionId" @bind-Value="nuevaNota.EvaluacionId" class="form-control" />
+        <ValidationMessage For="@(() => nuevaNota.EvaluacionId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="valorNota">Valor Nota:</label>
+        <InputNumber id="valorNota" @bind-Value="nuevaNota.ValorNota" class="form-control" min="1" max="10" />
+        <ValidationMessage For="@(() => nuevaNota.ValorNota)" />
+    </div>
+
+    <div class="form-group">
+        <label for="asistencia">Asistencia:</label>
+        <InputSelect id="asistencia" @bind-Value="nuevaNota.Asistencia" class="form-control">
+            <option value="">Seleccionar...</option>
+            <option value="P">Presente (P)</option>
+            <option value="A">Ausente (A)</option>
+            <option value="J">Justificado (J)</option>
+            <option value="T">Tardanza (T)</option>
+        </InputSelect>
+        <ValidationMessage For="@(() => nuevaNota.Asistencia)" />
+    </div>
+
+    <div class="form-group">
+        <label for="cursadoMateriaId">Cursado Materia ID:</label>
+        <InputNumber id="cursadoMateriaId" @bind-Value="nuevaNota.CursadoMateriaId" class="form-control" />
+        <ValidationMessage For="@(() => nuevaNota.CursadoMateriaId)" />
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    private Nota nuevaNota = new();
+
+    private async Task Guardar()
+    {
+        try
+        {
+            var respuesta = await NotaServicio.Post("api/Notas", nuevaNota);
+
+            if (respuesta.Error)
+            {
+                var error = await respuesta.ObtenerError();
+                await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+            }
+            else
+            {
+                Navigation.NavigateTo("/notas");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error inesperado: {ex.Message}");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/notas");
+    }
+}

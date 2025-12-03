@@ -1,0 +1,65 @@
+﻿@page "/usuarios/crear"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IUsuarioServicio UsuarioServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Crear Usuario</h3>
+
+<EditForm Model="@nuevoUsuario" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <InputText id="email" @bind-Value="nuevoUsuario.Email" class="form-control" />
+        <ValidationMessage For="@(() => nuevoUsuario.Email)" />
+    </div>
+
+    <div class="form-group">
+        <label for="contrasena">Contraseña:</label>
+        <InputText id="contrasena" @bind-Value="nuevoUsuario.Contrasena" class="form-control" type="password" />
+        <ValidationMessage For="@(() => nuevoUsuario.Contrasena)" />
+    </div>
+
+    <div class="form-group">
+        <label for="personaId">Persona ID:</label>
+        <InputNumber id="personaId" @bind-Value="nuevoUsuario.PersonaId" class="form-control" />
+        <ValidationMessage For="@(() => nuevoUsuario.PersonaId)" />
+    </div>
+
+    <div class="form-group form-check">
+        <InputCheckbox id="estado" @bind-Value="nuevoUsuario.Estado" class="form-check-input" />
+        <label for="estado" class="form-check-label">Estado Activo</label>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    private Usuario nuevoUsuario = new();
+
+    private async Task Guardar()
+    {
+        var respuesta = await UsuarioServicio.Post("api/Usuarios", nuevoUsuario);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/usuarios");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/usuarios");
+    }
+}

@@ -1,0 +1,117 @@
+﻿@page "/alumnos"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IAlumnoServicio AlumnoServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+<h3>Alumnos</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="CrearNuevo">Crear Nuevo</button>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario ID</th>
+                <th>Sexo</th>
+                <th>Edad</th>
+                <th>País</th>
+                <th>Estado</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in alumnos)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.UsuarioId</td>
+                    <td>@item.Sexo</td>
+                    <td>@item.Edad</td>
+                    <td>@item.Pais</td>
+                    <td>@(item.Estado ? "Activo" : "Inactivo")</td>
+                    <td>@(item.Activo ? "Sí" : "No")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => Editar(item.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(item)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Alumno> alumnos = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        error = false;
+        StateHasChanged();
+
+        var respuesta = await AlumnoServicio.GetAll("api/Alumnos");
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            alumnos = respuesta.Respuesta ?? new List<Alumno>();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private void CrearNuevo()
+    {
+        Navigation.NavigateTo("/alumnos/crear");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/alumnos/editar/{id}");
+    }
+
+    private async Task Eliminar(Alumno alumno)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro de eliminar este alumno?"))
+            return;
+
+        var respuesta = await AlumnoServicio.Delete("api/Alumnos", alumno.Id);
+
+        if (respuesta.Error)
+        {
+            mensajeError = await respuesta.ObtenerError();
+            error = true;
+        }
+        else
+        {
+            await CargarDatos();
+        }
+    }
+}

@@ -8,24 +8,31 @@ namespace GestionDocente.Server.Util
     {
         public AutoMapperProfiles()
         {
-            //_usuario________________________________________________________________________________________________________________________________
+            // Tablas Maestras
+            CreateMap<CrearTipoDocumentoDTO, TipoDocumento>();
+            CreateMap<CrearCarreraDTO, Carrera>();
+            CreateMap<CrearMateriaDTO, Materia>();
+            CreateMap<CrearPersonaDTO, Persona>();
+            CreateMap<CrearPlanEstudioDTO, PlanEstudio>();
             CreateMap<CrearUsuarioDTO, Usuario>();
-            //CreateMap<UsuarioDTO, Usuario>();
-            //CreateMap<Usuario, GetUsuarioDTO>()
-            //                                .ForMember(dest => dest.NombrePersona, opt => opt.MapFrom(src => src.Persona.Nombre))
-            //                                .ForMember(dest => dest.ApellidoPersona, opt => opt.MapFrom(src => src.Persona.Apellido))
-            //                                .ForMember(dest => dest.DocumentoPersona, opt => opt.MapFrom(src => src.Persona.Documento))
-            //                                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
-            //                                .ForMember(dest => dest.Contrasena, opt => opt.MapFrom(src => src.Contrasena));
 
-            //_Profesor_______________________________________________________________________________________________________________________________
+            // Entidades Relacionadas
+            CreateMap<CrearAlumnoDTO, Alumno>();
             CreateMap<CrearProfesorDTO, Profesor>();
-            //_Turno_______________________________________________________________________________________________________________________________
+            CreateMap<CrearCoordinadorDTO, Coordinador>();
             CreateMap<CrearTurnoDTO, Turno>();
-
-
+            CreateMap<CrearMateriaEnPlanEstudioDTO, MateriaEnPlanEstudio>();
+            CreateMap<CrearInscripcionCarreraDTO, InscripcionCarrera>();
             CreateMap<CrearCursadoMateriaDTO, CursadoMateria>();
-            CreateMap<CUPOFProfesorDTO, CUPOF_Profesor>();
+            CreateMap<CrearClaseDTO, Clase>();
+            CreateMap<CrearEvaluacionDTO, Evaluacion>();
+            CreateMap<CrearNotaDTO, Nota>();
+            CreateMap<CrearClaseAsistenciaDTO, ClaseAsistencia>();
+            CreateMap<CrearCorrelatividadDTO, Correlatividad>();
+            CreateMap<CrearCertificadoAlumnoDTO, CertificadoAlumno>();
+            CreateMap<CrearCUPOF_CoordinadorDTO, CUPOF_Coordinador>();
+            CreateMap<CrearCUPOF_ProfesorDTO, CUPOF_Profesor>();
+            CreateMap<CrearMABDTO, MAB>();
         }
     }
 }

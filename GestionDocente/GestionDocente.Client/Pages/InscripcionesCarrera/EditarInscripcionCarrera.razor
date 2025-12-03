@@ -1,0 +1,130 @@
+﻿@page "/inscripcionescarrera/editar/{Id:int}"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IInscripcionCarreraServicio InscripcionCarreraServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+<h3>Editar Inscripción a Carrera</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <EditForm Model="@inscripcion" OnValidSubmit="@Actualizar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="alumnoId">Alumno ID:</label>
+            <InputNumber id="alumnoId" @bind-Value="inscripcion.AlumnoId" class="form-control" />
+            <ValidationMessage For="@(() => inscripcion.AlumnoId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="carreraId">Carrera ID:</label>
+            <InputNumber id="carreraId" @bind-Value="inscripcion.CarreraId" class="form-control" />
+            <ValidationMessage For="@(() => inscripcion.CarreraId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="cohorte">Cohorte:</label>
+            <InputNumber id="cohorte" @bind-Value="inscripcion.Cohorte" class="form-control" />
+            <ValidationMessage For="@(() => inscripcion.Cohorte)" />
+        </div>
+
+        <div class="form-group">
+            <label for="legajo">Legajo:</label>
+            <InputText id="legajo" @bind-Value="inscripcion.Legajo" class="form-control" />
+            <ValidationMessage For="@(() => inscripcion.Legajo)" />
+        </div>
+
+        <div class="form-group">
+            <label for="estadoAlumno">Estado Alumno:</label>
+            <InputText id="estadoAlumno" @bind-Value="inscripcion.EstadoAlumno" class="form-control" />
+            <ValidationMessage For="@(() => inscripcion.EstadoAlumno)" />
+        </div>
+
+        <div class="form-group">
+            <label for="libroMatriz">Libro Matriz:</label>
+            <InputText id="libroMatriz" @bind-Value="inscripcion.LibroMatriz" class="form-control" />
+            <ValidationMessage For="@(() => inscripcion.LibroMatriz)" />
+        </div>
+
+        <div class="form-group">
+            <label for="nroOrdenAlumno">Número Orden Alumno:</label>
+            <InputText id="nroOrdenAlumno" @bind-Value="inscripcion.NroOrdenAlumno" class="form-control" />
+            <ValidationMessage For="@(() => inscripcion.NroOrdenAlumno)" />
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="activo" @bind-Value="inscripcion.Activo" class="form-check-input" />
+            <label for="activo" class="form-check-label">Activo</label>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">Actualizar</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private InscripcionCarrera inscripcion = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        StateHasChanged();
+
+        var respuesta = await InscripcionCarreraServicio.GetById("api/InscripcionesCarrera", Id);
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            inscripcion = respuesta.Respuesta ?? new InscripcionCarrera();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private async Task Actualizar()
+    {
+        var respuesta = await InscripcionCarreraServicio.Put("api/InscripcionesCarrera", inscripcion);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/inscripcionescarrera");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/inscripcionescarrera");
+    }
+}

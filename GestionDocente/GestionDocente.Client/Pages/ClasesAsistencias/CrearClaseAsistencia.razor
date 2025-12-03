@@ -1,0 +1,79 @@
+﻿@page "/clasesasistencias/crear"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IClaseAsistenciaServicio ClaseAsistenciaServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Crear Asistencia de Clase</h3>
+
+<EditForm Model="@nuevaAsistencia" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="cursadoMateriaId">Cursado Materia ID:</label>
+        <InputNumber id="cursadoMateriaId" @bind-Value="nuevaAsistencia.CursadoMateriaId" class="form-control" />
+        <ValidationMessage For="@(() => nuevaAsistencia.CursadoMateriaId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="claseId">Clase ID:</label>
+        <InputNumber id="claseId" @bind-Value="nuevaAsistencia.ClaseId" class="form-control" />
+        <ValidationMessage For="@(() => nuevaAsistencia.ClaseId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="asistencia">Asistencia:</label>
+        <InputSelect id="asistencia" @bind-Value="nuevaAsistencia.Asistencia" class="form-control">
+            <option value="">Seleccionar...</option>
+            <option value="P">Presente (P)</option>
+            <option value="A">Ausente (A)</option>
+            <option value="J">Justificado (J)</option>
+            <option value="T">Tardanza (T)</option>
+        </InputSelect>
+        <ValidationMessage For="@(() => nuevaAsistencia.Asistencia)" />
+    </div>
+
+    <div class="form-group">
+        <label for="observacion">Observación:</label>
+        <InputTextArea id="observacion" @bind-Value="nuevaAsistencia.Observacion" class="form-control" />
+        <ValidationMessage For="@(() => nuevaAsistencia.Observacion)" />
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    private ClaseAsistencia nuevaAsistencia = new();
+
+    private async Task Guardar()
+    {
+        try
+        {
+            var respuesta = await ClaseAsistenciaServicio.Post("api/ClasesAsistencias", nuevaAsistencia);
+
+            if (respuesta.Error)
+            {
+                var error = await respuesta.ObtenerError();
+                await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+            }
+            else
+            {
+                Navigation.NavigateTo("/clasesasistencias");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error inesperado: {ex.Message}");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/clasesasistencias");
+    }
+}

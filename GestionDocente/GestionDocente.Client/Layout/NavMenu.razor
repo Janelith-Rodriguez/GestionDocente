@@ -14,34 +14,125 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
+
+        <!-- Gestión Académica -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
+            <div class="nav-link group-header">
+                <span class="bi bi-book-half-nav-menu" aria-hidden="true"></span> Gestión Académica
+            </div>
+            <div class="sub-menu">
+                <NavLink class="nav-link sub-item" href="Carreras">
+                    <span class="bi bi-diagram-3" aria-hidden="true"></span> Carreras
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="PlanesEstudio">
+                    <span class="bi bi-journal-text" aria-hidden="true"></span> Plan de Estudio
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="Materias">
+                    <span class="bi bi-journal-bookmark" aria-hidden="true"></span> Materias
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="Correlatividades">
+                    <span class="bi bi-link-45deg" aria-hidden="true"></span> Correlatividades
+                </NavLink>
+            </div>
         </div>
 
+        <!-- Gestión de Personas -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="api/Profesores">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Profesores
-            </NavLink>
+            <div class="nav-link group-header">
+                <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Gestión de Personas
+            </div>
+            <div class="sub-menu">
+                <NavLink class="nav-link sub-item" href="Personas">
+                    <span class="bi bi-person-vcard" aria-hidden="true"></span> Personas
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="Usuarios">
+                    <span class="bi bi-person-badge" aria-hidden="true"></span> Usuarios
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="Alumnos">
+                    <span class="bi bi-person-video3" aria-hidden="true"></span> Alumnos
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="Profesores">
+                    <span class="bi bi-person-gear" aria-hidden="true"></span> Profesores
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="Coordinadores">
+                    <span class="bi bi-person-check" aria-hidden="true"></span> Coordinadores
+                </NavLink>
+            </div>
         </div>
 
+        <!-- Gestión de Cursos -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="api/Turnos">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Turnos
-            </NavLink>
+            <div class="nav-link group-header">
+                <span class="bi bi-calendar-week-nav-menu" aria-hidden="true"></span> Gestión de Cursos
+            </div>
+            <div class="sub-menu">
+                <NavLink class="nav-link sub-item" href="Turnos">
+                    <span class="bi bi-clock-history" aria-hidden="true"></span> Turnos
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="Clases">
+                    <span class="bi bi-calendar-event" aria-hidden="true"></span> Clases
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="Evaluaciones">
+                    <span class="bi bi-clipboard-check" aria-hidden="true"></span> Evaluaciones
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="ClasesAsistencias">
+                    <span class="bi bi-clipboard2-pulse" aria-hidden="true"></span> Asistencias
+                </NavLink>
+            </div>
         </div>
 
+        <!-- Inscripciones y Cursado -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="api/Usuarios">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Usuarios
-            </NavLink>
+            <div class="nav-link group-header">
+                <span class="bi bi-pencil-square-nav-menu" aria-hidden="true"></span> Inscripciones
+            </div>
+            <div class="sub-menu">
+                <NavLink class="nav-link sub-item" href="InscripcionesCarrera">
+                    <span class="bi bi-backpack" aria-hidden="true"></span> Insc. Carreras
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="CursadosMateria">
+                    <span class="bi bi-journal-richtext" aria-hidden="true"></span> Cursado Materias
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="Notas">
+                    <span class="bi bi-graph-up" aria-hidden="true"></span> Notas
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="CertificadosAlumno">
+                    <span class="bi bi-award" aria-hidden="true"></span> Certificados
+                </NavLink>
+            </div>
         </div>
+
+        <!-- Recursos Humanos -->
+        <div class="nav-item px-3">
+            <div class="nav-link group-header">
+                <span class="bi bi-briefcase-fill-nav-menu" aria-hidden="true"></span> Recursos Humanos
+            </div>
+            <div class="sub-menu">
+                <NavLink class="nav-link sub-item" href="/CUPOFProfesores">
+                    <span class="bi bi-person-workspace" aria-hidden="true"></span> CUPOF Profesores
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="CUPOFCoordinadores">
+                    <span class="bi bi-person-gear" aria-hidden="true"></span> CUPOF Coord.
+                </NavLink>
+                <NavLink class="nav-link sub-item" href="MABs">
+                    <span class="bi bi-file-earmark-person" aria-hidden="true"></span> MABs
+                </NavLink>
+            </div>
+        </div>
+
+        <!-- Configuración -->
+        <div class="nav-item px-3">
+            <div class="nav-link group-header">
+                <span class="bi bi-gear-fill-nav-menu" aria-hidden="true"></span> Configuración
+            </div>
+            <div class="sub-menu">
+                <NavLink class="nav-link sub-item" href="TipoDocumentos">
+                    <span class="bi bi-card-checklist" aria-hidden="true"></span> Tipo Documentos
+                </NavLink>
+            </div>
+        </div>
+
+        <!-- Herramientas -->
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="https://localhost:7130/swagger" target="_blank">
                 <span class="bi bi-engranaje-nav-menu" aria-hidden="true"></span> Swagger
@@ -49,6 +140,60 @@
         </div>
     </nav>
 </div>
+
+<style>
+    .nav-scrollable {
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+    }
+
+    .group-header {
+        font-weight: bold;
+        color: #6c757d !important;
+        cursor: default;
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .group-header:hover {
+        background-color: #e9ecef;
+        color: #495057 !important;
+    }
+
+    .sub-menu {
+        margin-left: 1rem;
+        border-left: 2px solid #dee2e6;
+        padding-left: 0.5rem;
+    }
+
+    .sub-item {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+        margin-bottom: 0.125rem;
+    }
+
+    .sub-item:hover {
+        background-color: #e9ecef;
+        border-radius: 0.25rem;
+    }
+
+    .bi::before {
+        display: inline-block;
+        width: 1.2em;
+        text-align: center;
+    }
+
+    /* Iconos personalizados */
+    .bi-house-door-fill-nav-menu::before { content: "🏠"; }
+    .bi-book-half-nav-menu::before { content: "📚"; }
+    .bi-people-fill-nav-menu::before { content: "👥"; }
+    .bi-calendar-week-nav-menu::before { content: "📅"; }
+    .bi-pencil-square-nav-menu::before { content: "✏️"; }
+    .bi-briefcase-fill-nav-menu::before { content: "💼"; }
+    .bi-gear-fill-nav-menu::before { content: "⚙️"; }
+    .bi-engranaje-nav-menu::before { content: "🔧"; }
+</style>
 
 @code {
     private bool collapseNavMenu = true;

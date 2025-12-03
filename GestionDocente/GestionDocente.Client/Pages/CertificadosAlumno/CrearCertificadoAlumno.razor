@@ -1,0 +1,60 @@
+﻿@page "/certificadosalumno/crear"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject ICertificadoAlumnoServicio CertificadoAlumnoServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Crear Certificado de Alumno</h3>
+
+<EditForm Model="@nuevoCertificado" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <InputText id="nombre" @bind-Value="nuevoCertificado.Nombre" class="form-control" />
+        <ValidationMessage For="@(() => nuevoCertificado.Nombre)" />
+    </div>
+
+    <div class="form-group">
+        <label for="duracionCarrera">Duración Carrera:</label>
+        <InputText id="duracionCarrera" @bind-Value="nuevoCertificado.DuracionCarrera" class="form-control" />
+        <ValidationMessage For="@(() => nuevoCertificado.DuracionCarrera)" />
+    </div>
+
+    <div class="form-group">
+        <label for="modalidad">Modalidad:</label>
+        <InputText id="modalidad" @bind-Value="nuevoCertificado.Modalidad" class="form-control" />
+        <ValidationMessage For="@(() => nuevoCertificado.Modalidad)" />
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    private CertificadoAlumno nuevoCertificado = new();
+
+    private async Task Guardar()
+    {
+        var respuesta = await CertificadoAlumnoServicio.Post("api/CertificadosAlumno", nuevoCertificado);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/certificadosalumno");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/certificadosalumno");
+    }
+}

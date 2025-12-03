@@ -1,0 +1,53 @@
+﻿@page "/clases/crear"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IClaseServicio ClaseServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+<h3>Crear Clase</h3>
+
+<EditForm Model="@nuevaClase" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="turnoId">Turno ID:</label>
+        <InputNumber id="turnoId" @bind-Value="nuevaClase.TurnoId" class="form-control" />
+        <ValidationMessage For="@(() => nuevaClase.TurnoId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="fecha">Fecha:</label>
+        <InputDate id="fecha" @bind-Value="nuevaClase.Fecha" class="form-control" />
+        <ValidationMessage For="@(() => nuevaClase.Fecha)" />
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    private Clase nuevaClase = new();
+
+    private async Task Guardar()
+    {
+        var respuesta = await ClaseServicio.Post("api/Clases", nuevaClase);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/clases");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/clases");
+    }
+}

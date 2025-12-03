@@ -1,0 +1,134 @@
+﻿@page "/notas/editar/{Id:int}"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject INotaServicio NotaServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Editar Nota</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <EditForm Model="@nota" OnValidSubmit="@Actualizar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="evaluacionId">Evaluación ID:</label>
+            <InputNumber id="evaluacionId" @bind-Value="nota.EvaluacionId" class="form-control" />
+            <ValidationMessage For="@(() => nota.EvaluacionId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="valorNota">Valor Nota:</label>
+            <InputNumber id="valorNota" @bind-Value="nota.ValorNota" class="form-control" min="1" max="10" />
+            <ValidationMessage For="@(() => nota.ValorNota)" />
+        </div>
+
+        <div class="form-group">
+            <label for="asistencia">Asistencia:</label>
+            <InputSelect id="asistencia" @bind-Value="nota.Asistencia" class="form-control">
+                <option value="">Seleccionar...</option>
+                <option value="P">Presente (P)</option>
+                <option value="A">Ausente (A)</option>
+                <option value="J">Justificado (J)</option>
+                <option value="T">Tardanza (T)</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => nota.Asistencia)" />
+        </div>
+
+        <div class="form-group">
+            <label for="cursadoMateriaId">Cursado Materia ID:</label>
+            <InputNumber id="cursadoMateriaId" @bind-Value="nota.CursadoMateriaId" class="form-control" />
+            <ValidationMessage For="@(() => nota.CursadoMateriaId)" />
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="activo" @bind-Value="nota.Activo" class="form-check-input" />
+            <label for="activo" class="form-check-label">Activo</label>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">Actualizar</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Nota nota = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        StateHasChanged();
+
+        try
+        {
+            var respuesta = await NotaServicio.GetById("api/Notas", Id);
+
+            if (respuesta.Error)
+            {
+                error = true;
+                mensajeError = await respuesta.ObtenerError();
+            }
+            else
+            {
+                nota = respuesta.Respuesta ?? new Nota();
+            }
+        }
+        catch (Exception ex)
+        {
+            error = true;
+            mensajeError = $"Error al cargar datos: {ex.Message}";
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private async Task Actualizar()
+    {
+        try
+        {
+            var respuesta = await NotaServicio.Put("api/Notas", nota);
+
+            if (respuesta.Error)
+            {
+                var error = await respuesta.ObtenerError();
+                await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+            }
+            else
+            {
+                Navigation.NavigateTo("/notas");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error inesperado: {ex.Message}");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/notas");
+    }
+}

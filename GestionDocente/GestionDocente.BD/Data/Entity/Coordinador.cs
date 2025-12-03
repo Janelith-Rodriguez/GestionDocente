@@ -10,7 +10,7 @@ namespace GestionDocente.BD.Data.Entity
     public class Coordinador : EntityBase
     {
         public int UsuarioId { get; set; }
-        public Usuario Usuario { get; set; }
+        public Usuario? Usuario { get; set; }
 
 
         public int CarreraId { get; set; }

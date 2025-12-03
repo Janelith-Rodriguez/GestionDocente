@@ -2,13 +2,13 @@
 {
     public class HttpRespuesta<T>
     {
-        public T Respuesta { get; }
+        public T? Respuesta { get; }
 
-        public bool Error { get; set; }
+        public bool Error { get; }
 
         public HttpResponseMessage HttpResponseMessage { get; set; }
 
-        public HttpRespuesta(T respuesta, bool error, HttpResponseMessage httpResponseMessage)
+        public HttpRespuesta(T? respuesta, bool error, HttpResponseMessage httpResponseMessage)
         {
             Respuesta = respuesta;
             Error = error;
@@ -22,21 +22,20 @@
                 return "";
             }
 
-            var statuscode = HttpResponseMessage.StatusCode;
+            var statusCode = HttpResponseMessage.StatusCode;
 
-            switch (statuscode)
+            switch (statusCode)
             {
                 case System.Net.HttpStatusCode.BadRequest:
-                    return HttpResponseMessage.Content.ReadAsStringAsync().ToString()!;
-                //                    return "Error, no se puede procesar la información";
+                    return await HttpResponseMessage.Content.ReadAsStringAsync(); // Cambié ToString() por await
                 case System.Net.HttpStatusCode.Unauthorized:
                     return "Error, no está logueado";
                 case System.Net.HttpStatusCode.Forbidden:
                     return "Error, no tiene autorización a ejecutar este proceso";
                 case System.Net.HttpStatusCode.NotFound:
-                    return "Error, dirección no encontrado";
+                    return "Error, recurso no encontrado";
                 default:
-                    return HttpResponseMessage.Content.ReadAsStringAsync().Result;
+                    return await HttpResponseMessage.Content.ReadAsStringAsync(); // Cambié Result por await
             }
         }
     }

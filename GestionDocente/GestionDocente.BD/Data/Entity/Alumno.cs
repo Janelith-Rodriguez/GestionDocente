@@ -10,7 +10,7 @@ namespace GestionDocente.BD.Data.Entity
     public class Alumno : EntityBase
     {
         public int UsuarioId { get; set; }
-        public Usuario Usuario { get; set; }
+        public Usuario? Usuario { get; set; }
 
 
         [Required(ErrorMessage = "El campo es obligatorio")]

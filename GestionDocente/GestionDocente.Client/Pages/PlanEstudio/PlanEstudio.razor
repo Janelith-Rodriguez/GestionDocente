@@ -1,0 +1,122 @@
+﻿@* @page "/planes-estudio"
+@inject IPlanEstudioServicio PlanEstudioServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Gestión de Planes de Estudio</h3>
+
+<div class="row mb-3">
+    <div class="col">
+        <button class="btn btn-primary" @onclick="NuevoPlan">Nuevo Plan de Estudio</button>
+    </div>
+</div>
+
+@if (cargando)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else if (planesEstudio == null || !planesEstudio.Any())
+{
+    <div class="alert alert-info">
+        No hay planes de estudio registrados.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Año</th>
+                    <th>Carrera</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var plan in planesEstudio)
+                {
+                    <tr>
+                        <td>@plan.Nombre</td>
+                        <td>@plan.Anno</td>
+                        <td>@(plan.Carrera?.Nombre ?? "N/A")</td>
+                        <td>
+                            <span class="badge @(plan.EstadoPlan ? "bg-success" : "bg-secondary")">
+                                @(plan.EstadoPlan ? "Activo" : "Inactivo")
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" @onclick="() => EditarPlan(plan.Id)">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => EliminarPlan(plan)">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<PlanEstudio> planesEstudio = new();
+    private bool cargando = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarPlanesEstudio();
+    }
+
+    private async Task CargarPlanesEstudio()
+    {
+        cargando = true;
+        StateHasChanged();
+
+        var respuesta = await PlanEstudioServicio.Get();
+        if (respuesta.Error)
+        {
+            // Manejar error
+            Console.WriteLine($"Error: {respuesta.Mensaje}");
+        }
+        else
+        {
+            planesEstudio = respuesta.Response ?? new List<PlanEstudio>();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private void NuevoPlan()
+    {
+        Navigation.NavigateTo("/planes-estudio/nuevo");
+    }
+
+    private void EditarPlan(int id)
+    {
+        Navigation.NavigateTo($"/planes-estudio/editar/{id}");
+    }
+
+    private async Task EliminarPlan(PlanEstudio plan)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro de eliminar el plan de estudio {plan.Nombre}?"))
+        {
+            var respuesta = await PlanEstudioServicio.Delete(plan.Id);
+            if (!respuesta.Error)
+            {
+                await CargarPlanesEstudio();
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error al eliminar: {respuesta.Mensaje}");
+            }
+        }
+    }
+} *@

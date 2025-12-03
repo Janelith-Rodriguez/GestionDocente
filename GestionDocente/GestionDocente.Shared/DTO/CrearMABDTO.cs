@@ -10,18 +10,17 @@ namespace GestionDocente.Shared.DTO
 {
     public class CrearMABDTO
     {
+        [Required(ErrorMessage = "El profesor es obligatorio")]
         public int ProfesorId { get; set; }
-        public Profesor Profesor { get; set; }
 
-
+        [Required(ErrorMessage = "El CUPOF del profesor es obligatorio")]
         public int CUPOF_ProfesorId { get; set; }
-        public CUPOF_Profesor CUPOF_Profesor { get; set; }
 
-        [Required(ErrorMessage = "El Id del MAB (código del MAB) es obligatorio")]
+        [Required(ErrorMessage = "El Id del MAB es obligatorio")]
         [MaxLength(30, ErrorMessage = "Máximo número de caracteres {1}.")]
         public string IdMab { get; set; }
 
-        [Required(ErrorMessage = "La situacion revista es obligatoria")]
+        [Required(ErrorMessage = "La situación de revista es obligatoria")]
         [MaxLength(45, ErrorMessage = "Máximo número de caracteres {1}.")]
         public string SitRevista { get; set; }
 

@@ -1,107 +1,87 @@
-﻿using AutoMapper;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using GestionDocente.BD.Data;
-using Microsoft.AspNetCore.Mvc;
-using GestionDocente.Shared.DTO;
 using GestionDocente.BD.Data.Entity;
 using GestionDocente.Server.Repositorio;
 
 namespace GestionDocente.Server.Controllers
 {
     [ApiController]
-    [Route("api/CursadoMateria")]
-    public class CursadoMateriaController : ControllerBase
+    [Route("api/CursadosMateria")]
+    public class CursadosMateriaController : ControllerBase
     {
-        private readonly ICursadoMateriaRepositorio eRepositorio;
-        private readonly IMapper mapper;
+        private readonly ICursadoMateriaRepositorio repositorio;
 
-        public CursadoMateriaController(ICursadoMateriaRepositorio eRepositorio,
-                                        IMapper mapper)
+        public CursadosMateriaController(ICursadoMateriaRepositorio repositorio)
         {
-            this.eRepositorio = eRepositorio;
-            this.mapper = mapper;
+            this.repositorio = repositorio;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<CursadoMateria>>> GetAll()
+        [HttpGet]    //api/CursadosMateria
+        public async Task<ActionResult<List<CursadoMateria>>> Get()
         {
-            var cursadoMaterias = await eRepositorio.FullGetAll();
-
-            return Ok(cursadoMaterias);
+            return await repositorio.Select();
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<CursadoMateria>> GetById(int id)
+        [HttpGet("{id:int}")] //api/CursadosMateria/2
+        public async Task<ActionResult<CursadoMateria>> Get(int id)
         {
-            var cursadoMateria = await eRepositorio.FullGetById(id);
-            if (cursadoMateria == null) return NotFound();
-
-            return Ok(cursadoMateria);
+            CursadoMateria? entidad = await repositorio.SelectById(id);
+            if (entidad == null)
+            {
+                return NotFound();
+            }
+            return entidad;
         }
-        #region Peticiones Get
 
-        //[HttpGet]
-        //public async Task<ActionResult<List<CursadoMateria>>> Get()
-        //{
-        //    return await repositorio.Select();
-        //}
+        [HttpGet("GetByAlumno/{alumnoId}")] //api/CursadosMateria/GetByAlumno/1
+        public async Task<ActionResult<List<CursadoMateria>>> GetByAlumno(int alumnoId)
+        {
+            var entidades = await repositorio.SelectByAlumno(alumnoId);
+            return entidades;
+        }
 
-        //[HttpGet("{id:int}")]
-        //public async Task<ActionResult<CursadoMateria>> Get(int id)
-        //{
-        //    CursadoMateria? sel = await repositorio.SelectById(id);
-        //    if (sel == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return sel;
-        //}
+        [HttpGet("GetByTurno/{turnoId}")] //api/CursadosMateria/GetByTurno/1
+        public async Task<ActionResult<List<CursadoMateria>>> GetByTurno(int turnoId)
+        {
+            var entidades = await repositorio.SelectByTurno(turnoId);
+            return entidades;
+        }
 
-        //[HttpGet("existe/{id:int}")]
-        //public async Task<ActionResult<bool>> Existe(int id)
-        //{
-        //    var existe = await repositorio.Existe(id);
-        //    return existe;
-
-        //}
-
-        #endregion
+        [HttpGet("existe/{id:int}")] //api/CursadosMateria/existe/2
+        public async Task<ActionResult<bool>> Existe(int id)
+        {
+            return await repositorio.Existe(id);
+        }
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post(CrearCursadoMateriaDTO entidadDTO)
+        public async Task<ActionResult<int>> Post(CursadoMateria entidad)
         {
             try
             {
-                CursadoMateria entidad = mapper.Map<CursadoMateria>(entidadDTO);
-
-                return await eRepositorio.Insert(entidad);
+                return await repositorio.Insert(entidad);
             }
-            catch (Exception e)
+            catch (Exception err)
             {
-                return BadRequest(e.Message);
+                return BadRequest(err.Message);
             }
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}")] //api/CursadosMateria/2
         public async Task<ActionResult> Put(int id, [FromBody] CursadoMateria entidad)
         {
-            if (id != entidad.Id)
-            {
-                return BadRequest("Datos incorrectos");
-            }
-            var sel = await eRepositorio.SelectById(id);
-            //sel = Seleccion
-
-            if (sel == null)
-            {
-                return NotFound("No existe el tipo de documento buscado.");
-            }
-
-
-            sel = mapper.Map<CursadoMateria>(entidad);
-
             try
             {
-                await eRepositorio.Update(id, sel);
+                if (id != entidad.Id)
+                {
+                    return BadRequest("Datos Incorrectos");
+                }
+                var resultado = await repositorio.Update(id, entidad);
+
+                if (!resultado)
+                {
+                    return BadRequest("No se pudo actualizar el cursado de materia");
+                }
                 return Ok();
             }
             catch (Exception e)
@@ -110,32 +90,17 @@ namespace GestionDocente.Server.Controllers
             }
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int}")] //api/CursadosMateria/2
         public async Task<ActionResult> Delete(int id)
         {
-            var existe = await eRepositorio.Existe(id);
-            if (!existe)
+            var resp = await repositorio.Delete(id);
+            if (!resp)
             {
-                return NotFound($"El CursadoMateria {id} no existe");
+                return BadRequest("El cursado de materia no se pudo borrar");
             }
-            CursadoMateria EntidadABorrar = new CursadoMateria();
-            EntidadABorrar.Id = id;
-
-            if (await eRepositorio.Delete(id))
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest();
-            }
-
+            return Ok();
         }
-
-
-
     }
-
 }
 
 

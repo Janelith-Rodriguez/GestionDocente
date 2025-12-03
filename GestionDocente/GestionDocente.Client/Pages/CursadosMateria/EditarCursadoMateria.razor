@@ -1,0 +1,124 @@
+﻿@page "/cursadosmateria/editar/{Id:int}"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject ICursadoMateriaServicio CursadoMateriaServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+<h3>Editar Cursado de Materia</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <EditForm Model="@cursado" OnValidSubmit="@Actualizar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="alumnoId">Alumno ID:</label>
+            <InputNumber id="alumnoId" @bind-Value="cursado.AlumnoId" class="form-control" />
+            <ValidationMessage For="@(() => cursado.AlumnoId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="turnoId">Turno ID:</label>
+            <InputNumber id="turnoId" @bind-Value="cursado.TurnoId" class="form-control" />
+            <ValidationMessage For="@(() => cursado.TurnoId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="fechaInscripcion">Fecha Inscripción:</label>
+            <InputDate id="fechaInscripcion" @bind-Value="cursado.FechaInscripcion" class="form-control" />
+            <ValidationMessage For="@(() => cursado.FechaInscripcion)" />
+        </div>
+
+        <div class="form-group">
+            <label for="anno">Año:</label>
+            <InputNumber id="anno" @bind-Value="cursado.Anno" class="form-control" />
+            <ValidationMessage For="@(() => cursado.Anno)" />
+        </div>
+
+        <div class="form-group">
+            <label for="condicionActual">Condición Actual:</label>
+            <InputText id="condicionActual" @bind-Value="cursado.CondicionActual" class="form-control" />
+            <ValidationMessage For="@(() => cursado.CondicionActual)" />
+        </div>
+
+        <div class="form-group">
+            <label for="vencimientoCondicion">Vencimiento Condición:</label>
+            <InputDate id="vencimientoCondicion" @bind-Value="cursado.VencimientoCondicion" class="form-control" />
+            <ValidationMessage For="@(() => cursado.VencimientoCondicion)" />
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="activo" @bind-Value="cursado.Activo" class="form-check-input" />
+            <label for="activo" class="form-check-label">Activo</label>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">Actualizar</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private CursadoMateria cursado = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        StateHasChanged();
+
+        var respuesta = await CursadoMateriaServicio.GetById("api/CursadosMateria", Id);
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            cursado = respuesta.Respuesta ?? new CursadoMateria();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private async Task Actualizar()
+    {
+        var respuesta = await CursadoMateriaServicio.Put("api/CursadosMateria", cursado);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/cursadosmateria");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/cursadosmateria");
+    }
+}

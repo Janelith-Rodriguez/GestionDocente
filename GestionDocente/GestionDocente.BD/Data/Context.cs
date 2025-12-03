@@ -19,8 +19,6 @@ namespace GestionDocente.BD.Data
         public DbSet<Correlatividad> Correlatividades { get; set; }
         public DbSet<CUPOF_Coordinador> CUPOF_Coordinadores { get; set; }
         public DbSet<CUPOF_Profesor> CUPOF_Profesores { get; set; }
-    
-
         public DbSet<CursadoMateria> CursadosMateria { get; set; }
         public DbSet<Evaluacion> Evaluaciones { get; set; }
         public DbSet<InscripcionCarrera> InscripcionCarreras { get; set; }
@@ -38,20 +36,34 @@ namespace GestionDocente.BD.Data
         public Context(DbContextOptions options) : base(options)
         {
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Configuración global para el soft delete
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(IEntityBase).IsAssignableFrom(entityType.ClrType))
+                {
+                    // Configurar la propiedad Activo para todas las entidades que implementan IEntityBase
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property<bool>("Activo")
+                        .HasDefaultValue(true)
+                        .IsRequired();
+                }
+            }
+
             //Éste codigo sirve para evitar que se borren los datos en cascada en la base de datos
-            var cascadeFKs = modelBuilder.Model.G­etEntityTypes()
+            var cascadeFKs = modelBuilder.Model.GetEntityTypes()
                                             .SelectMany(t => t.GetForeignKeys())
                                             .Where(fk => !fk.IsOwnership
-                                                        && fk.DeleteBehavior == DeleteBehavior.Casca­de);
+                                                        && fk.DeleteBehavior == DeleteBehavior.Cascade);
             foreach (var fk in cascadeFKs)
-            {        //Elimina el borrado en cascada               
-                fk.DeleteBehavior = DeleteBehavior.Restr­ict;
+            {
+                //Elimina el borrado en cascada               
+                fk.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
             base.OnModelCreating(modelBuilder);
         }
     }
-
 }

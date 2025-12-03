@@ -1,0 +1,118 @@
+﻿@page "/turnos/editar/{Id:int}"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject ITurnoServicio TurnoServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+<h3>Editar Turno</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <EditForm Model="@turno" OnValidSubmit="@Actualizar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="profesorId">Profesor ID:</label>
+            <InputNumber id="profesorId" @bind-Value="turno.ProfesorId" class="form-control" />
+            <ValidationMessage For="@(() => turno.ProfesorId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="materiaEnPlanEstudioId">Materia Plan ID:</label>
+            <InputNumber id="materiaEnPlanEstudioId" @bind-Value="turno.MateriaEnPlanEstudioId" class="form-control" />
+            <ValidationMessage For="@(() => turno.MateriaEnPlanEstudioId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="sede">Sede:</label>
+            <InputText id="sede" @bind-Value="turno.Sede" class="form-control" />
+            <ValidationMessage For="@(() => turno.Sede)" />
+        </div>
+
+        <div class="form-group">
+            <label for="horario">Horario:</label>
+            <InputText id="horario" @bind-Value="turno.Horario" class="form-control" />
+            <ValidationMessage For="@(() => turno.Horario)" />
+        </div>
+
+        <div class="form-group">
+            <label for="annoCicloLectivo">Ciclo Lectivo:</label>
+            <InputNumber id="annoCicloLectivo" @bind-Value="turno.AnnoCicloLectivo" class="form-control" />
+            <ValidationMessage For="@(() => turno.AnnoCicloLectivo)" />
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="activo" @bind-Value="turno.Activo" class="form-check-input" />
+            <label for="activo" class="form-check-label">Activo</label>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">Actualizar</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Turno turno = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        StateHasChanged();
+
+        var respuesta = await TurnoServicio.GetById("api/Turnos", Id);
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            turno = respuesta.Respuesta ?? new Turno();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private async Task Actualizar()
+    {
+        var respuesta = await TurnoServicio.Put("api/Turnos", turno);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/turnos");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/turnos");
+    }
+}

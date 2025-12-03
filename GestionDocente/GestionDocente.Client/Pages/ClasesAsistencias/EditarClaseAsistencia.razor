@@ -1,0 +1,134 @@
+﻿@page "/clasesasistencias/editar/{Id:int}"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IClaseAsistenciaServicio ClaseAsistenciaServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Editar Asistencia de Clase</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <EditForm Model="@asistencia" OnValidSubmit="@Actualizar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="cursadoMateriaId">Cursado Materia ID:</label>
+            <InputNumber id="cursadoMateriaId" @bind-Value="asistencia.CursadoMateriaId" class="form-control" />
+            <ValidationMessage For="@(() => asistencia.CursadoMateriaId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="claseId">Clase ID:</label>
+            <InputNumber id="claseId" @bind-Value="asistencia.ClaseId" class="form-control" />
+            <ValidationMessage For="@(() => asistencia.ClaseId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="asistencia">Asistencia:</label>
+            <InputSelect id="asistencia" @bind-Value="asistencia.Asistencia" class="form-control">
+                <option value="">Seleccionar...</option>
+                <option value="P">Presente (P)</option>
+                <option value="A">Ausente (A)</option>
+                <option value="J">Justificado (J)</option>
+                <option value="T">Tardanza (T)</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => asistencia.Asistencia)" />
+        </div>
+
+        <div class="form-group">
+            <label for="observacion">Observación:</label>
+            <InputTextArea id="observacion" @bind-Value="asistencia.Observacion" class="form-control" />
+            <ValidationMessage For="@(() => asistencia.Observacion)" />
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="activo" @bind-Value="asistencia.Activo" class="form-check-input" />
+            <label for="activo" class="form-check-label">Activo</label>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">Actualizar</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private ClaseAsistencia asistencia = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        StateHasChanged();
+
+        try
+        {
+            var respuesta = await ClaseAsistenciaServicio.GetById("api/ClasesAsistencias", Id);
+
+            if (respuesta.Error)
+            {
+                error = true;
+                mensajeError = await respuesta.ObtenerError();
+            }
+            else
+            {
+                asistencia = respuesta.Respuesta ?? new ClaseAsistencia();
+            }
+        }
+        catch (Exception ex)
+        {
+            error = true;
+            mensajeError = $"Error al cargar datos: {ex.Message}";
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private async Task Actualizar()
+    {
+        try
+        {
+            var respuesta = await ClaseAsistenciaServicio.Put("api/ClasesAsistencias", asistencia);
+
+            if (respuesta.Error)
+            {
+                var error = await respuesta.ObtenerError();
+                await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+            }
+            else
+            {
+                Navigation.NavigateTo("/clasesasistencias");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error inesperado: {ex.Message}");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/clasesasistencias");
+    }
+}

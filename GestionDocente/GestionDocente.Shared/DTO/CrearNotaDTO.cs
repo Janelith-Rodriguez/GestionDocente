@@ -10,18 +10,16 @@ namespace GestionDocente.Shared.DTO
 {
     public class CrearNotaDTO
     {
+        [Required(ErrorMessage = "La evaluación es obligatoria")]
         public int EvaluacionId { get; set; }
-        public Evaluacion Evaluacion { get; set; }
 
         [Required(ErrorMessage = "El valor de la nota es obligatoria")]
-        [MaxLength(60, ErrorMessage = "Máximo número de caracteres {1}.")]
         public int ValorNota { get; set; }
 
-        [Required(ErrorMessage = "La aistencia es obligatoria")]
-        [MaxLength(60, ErrorMessage = "Máximo número de caracteres {1}.")]
+        [Required(ErrorMessage = "La asistencia es obligatoria")]
         public char Asistencia { get; set; }
 
+        [Required(ErrorMessage = "El cursado de materia es obligatorio")]
         public int CursadoMateriaId { get; set; }
-        public CursadoMateria CursadoMateria { get; set; }
     }
 }

@@ -1,0 +1,115 @@
+﻿@page "/clasesasistencias"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IClaseAsistenciaServicio ClaseAsistenciaServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+<h3>Asistencias de Clases</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="CrearNuevo">Crear Nueva</button>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cursado ID</th>
+                <th>Clase ID</th>
+                <th>Asistencia</th>
+                <th>Observación</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in asistencias)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.CursadoMateriaId</td>
+                    <td>@item.ClaseId</td>
+                    <td>@item.Asistencia</td>
+                    <td>@item.Observacion</td>
+                    <td>@(item.Activo ? "Sí" : "No")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => Editar(item.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(item)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ClaseAsistencia> asistencias = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        error = false;
+        StateHasChanged();
+
+        var respuesta = await ClaseAsistenciaServicio.GetAll("api/ClasesAsistencias");
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            asistencias = respuesta.Respuesta ?? new List<ClaseAsistencia>();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private void CrearNuevo()
+    {
+        Navigation.NavigateTo("/clasesasistencias/crear");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/clasesasistencias/editar/{id}");
+    }
+
+    private async Task Eliminar(ClaseAsistencia asistencia)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro de eliminar esta asistencia?"))
+            return;
+
+        var respuesta = await ClaseAsistenciaServicio.Delete("api/ClasesAsistencias", asistencia.Id);
+
+        if (respuesta.Error)
+        {
+            mensajeError = await respuesta.ObtenerError();
+            error = true;
+        }
+        else
+        {
+            await CargarDatos();
+        }
+    }
+}

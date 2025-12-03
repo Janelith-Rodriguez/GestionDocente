@@ -1,0 +1,115 @@
+﻿@page "/evaluaciones"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IEvaluacionServicio EvaluacionServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+<h3>Evaluaciones</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="CrearNuevo">Crear Nueva</button>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Turno ID</th>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Folio</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in evaluaciones)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.TurnoId</td>
+                    <td>@item.Fecha.ToShortDateString()</td>
+                    <td>@item.TipoEvaluacion</td>
+                    <td>@item.Folio</td>
+                    <td>@(item.Activo ? "Sí" : "No")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => Editar(item.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(item)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Evaluacion> evaluaciones = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        error = false;
+        StateHasChanged();
+
+        var respuesta = await EvaluacionServicio.GetAll("api/Evaluaciones");
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            evaluaciones = respuesta.Respuesta ?? new List<Evaluacion>();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private void CrearNuevo()
+    {
+        Navigation.NavigateTo("/evaluaciones/crear");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/evaluaciones/editar/{id}");
+    }
+
+    private async Task Eliminar(Evaluacion evaluacion)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro de eliminar esta evaluación?"))
+            return;
+
+        var respuesta = await EvaluacionServicio.Delete("api/Evaluaciones", evaluacion.Id);
+
+        if (respuesta.Error)
+        {
+            mensajeError = await respuesta.ObtenerError();
+            error = true;
+        }
+        else
+        {
+            await CargarDatos();
+        }
+    }
+}

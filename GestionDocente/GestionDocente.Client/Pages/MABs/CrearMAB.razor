@@ -1,0 +1,78 @@
+﻿@page "/mabs/crear"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IMABServicio MABServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Crear MAB</h3>
+
+<EditForm Model="@nuevoMAB" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="profesorId">Profesor ID:</label>
+        <InputNumber id="profesorId" @bind-Value="nuevoMAB.ProfesorId" class="form-control" />
+        <ValidationMessage For="@(() => nuevoMAB.ProfesorId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="cupofProfesorId">CUPOF Profesor ID:</label>
+        <InputNumber id="cupofProfesorId" @bind-Value="nuevoMAB.CUPOF_ProfesorId" class="form-control" />
+        <ValidationMessage For="@(() => nuevoMAB.CUPOF_ProfesorId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="idMab">ID MAB:</label>
+        <InputText id="idMab" @bind-Value="nuevoMAB.IdMab" class="form-control" />
+        <ValidationMessage For="@(() => nuevoMAB.IdMab)" />
+    </div>
+
+    <div class="form-group">
+        <label for="sitRevista">Situación Revista:</label>
+        <InputText id="sitRevista" @bind-Value="nuevoMAB.SitRevista" class="form-control" />
+        <ValidationMessage For="@(() => nuevoMAB.SitRevista)" />
+    </div>
+
+    <div class="form-group">
+        <label for="fechaInicio">Fecha Inicio:</label>
+        <InputDate id="fechaInicio" @bind-Value="nuevoMAB.FechaInicio" class="form-control" />
+        <ValidationMessage For="@(() => nuevoMAB.FechaInicio)" />
+    </div>
+
+    <div class="form-group">
+        <label for="fechaFin">Fecha Fin:</label>
+        <InputDate id="fechaFin" @bind-Value="nuevoMAB.FechaFin" class="form-control" />
+        <ValidationMessage For="@(() => nuevoMAB.FechaFin)" />
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    private MAB nuevoMAB = new();
+
+    private async Task Guardar()
+    {
+        var respuesta = await MABServicio.Post("api/MABs", nuevoMAB);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/mabs");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/mabs");
+    }
+}

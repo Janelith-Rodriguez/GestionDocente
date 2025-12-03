@@ -10,24 +10,22 @@ namespace GestionDocente.Shared.DTO
 {
     public class CrearEvaluacionDTO
     {
+        [Required(ErrorMessage = "El turno es obligatorio")]
         public int TurnoId { get; set; }
-        public Turno Turno { get; set; }
 
+        [Required(ErrorMessage = "La fecha es obligatoria")]
         public DateTime Fecha { get; set; }
 
-        [Required(ErrorMessage = "El tipo de la evaluacion es obligatorio")]
+        [Required(ErrorMessage = "El tipo de evaluación es obligatorio")]
         [MaxLength(36, ErrorMessage = "Máximo número de caracteres {1}.")]
-        public string TipoEvaluacion { get; set; } //Parcial, Final, IEFI, recuperatorio, etc.
+        public string TipoEvaluacion { get; set; }
 
-        [Required(ErrorMessage = "El folio es obligatorio")]
         [MaxLength(20, ErrorMessage = "Máximo número de caracteres {1}.")]
-        public string? Folio { get; set; } //
+        public string? Folio { get; set; }
 
-        [Required(ErrorMessage = "El libro es obligatorio")]
         [MaxLength(20, ErrorMessage = "Máximo número de caracteres {1}.")]
-        public string? Libro { get; set; } //
+        public string? Libro { get; set; }
 
-        [Required(ErrorMessage = "La se de es obligatoria")]
         [MaxLength(30, ErrorMessage = "Máximo número de caracteres {1}.")]
         public string? Sede { get; set; }
 

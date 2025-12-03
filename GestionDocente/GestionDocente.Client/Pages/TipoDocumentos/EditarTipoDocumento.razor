@@ -1,0 +1,204 @@
+﻿@page "/tipodocumentos/editar/{Id:int}"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject ITipoDocumentoServicio TipoDocumentoServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Editar Tipo de Documento</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">
+        <div class="spinner-border spinner-border-sm me-2" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        Cargando tipo de documento...
+    </div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @mensajeError
+        <div class="mt-2">
+            <button class="btn btn-sm btn-outline-danger me-2" @onclick="Recargar">Reintentar</button>
+            <button class="btn btn-sm btn-secondary" @onclick="VolverALista">Volver a la lista</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Editar Tipo de Documento - ID: @tipoDocumento.Id</h5>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@tipoDocumento" OnValidSubmit="@Actualizar">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="codigo" class="form-label">Código:</label>
+                            <InputText id="codigo" @bind-Value="tipoDocumento.Codigo" class="form-control"
+                                       placeholder="Ingrese el código" />
+                            <ValidationMessage For="@(() => tipoDocumento.Codigo)" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="nombre" class="form-label">Nombre:</label>
+                            <InputText id="nombre" @bind-Value="tipoDocumento.Nombre" class="form-control"
+                                       placeholder="Ingrese el nombre" />
+                            <ValidationMessage For="@(() => tipoDocumento.Nombre)" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <div class="form-check">
+                        <InputCheckbox id="activo" @bind-Value="tipoDocumento.Activo" class="form-check-input" />
+                        <label for="activo" class="form-check-label">Activo</label>
+                    </div>
+                    <small class="form-text text-muted">
+                        @if (tipoDocumento.Activo)
+                        {
+                            <span class="text-success">Este tipo de documento está activo y disponible para uso.</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">Este tipo de documento está inactivo y no estará disponible.</span>
+                        }
+                    </small>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success me-2" disabled="@procesando">
+                        @if (procesando)
+                        {
+                            <span>
+                                <span class="spinner-border spinner-border-sm me-2" role="status">
+                                    <span class="visually-hidden">Actualizando...</span>
+                                </span>
+                                Actualizando...
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                <i class="fas fa-save me-1"></i>Actualizar
+                            </span>
+                        }
+                    </button>
+                    <button type="button" class="btn btn-secondary me-2" @onclick="Cancelar" disabled="@procesando">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-outline-info" @onclick="VolverALista" disabled="@procesando">
+                        <i class="fas fa-list me-1"></i>Volver a la lista
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private TipoDocumento tipoDocumento = new();
+    private bool cargando = true;
+    private bool error = false;
+    private bool procesando = false;
+    private string mensajeError = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        error = false;
+        StateHasChanged();
+
+        try
+        {
+            var respuesta = await TipoDocumentoServicio.GetById("api/TipoDocumentos", Id);
+
+            if (respuesta.Error)
+            {
+                error = true;
+                mensajeError = await respuesta.ObtenerError();
+            }
+            else if (respuesta.Respuesta == null)
+            {
+                error = true;
+                mensajeError = "No se encontró el tipo de documento solicitado.";
+            }
+            else
+            {
+                tipoDocumento = respuesta.Respuesta;
+            }
+        }
+        catch (Exception ex)
+        {
+            error = true;
+            mensajeError = $"Error al cargar el tipo de documento: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Recargar()
+    {
+        await CargarDatos();
+    }
+
+    private async Task Actualizar()
+    {
+        if (procesando) return;
+
+        procesando = true;
+        StateHasChanged();
+
+        try
+        {
+            var respuesta = await TipoDocumentoServicio.Put("api/TipoDocumentos", tipoDocumento);
+
+            if (respuesta.Error)
+            {
+                var error = await respuesta.ObtenerError();
+                await JSRuntime.InvokeVoidAsync("alert", $"Error al actualizar: {error}");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Tipo de documento actualizado correctamente");
+                Navigation.NavigateTo("/tipodocumentos");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {ex.Message}");
+        }
+        finally
+        {
+            procesando = false;
+            StateHasChanged();
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/tipodocumentos");
+    }
+
+    private void VolverALista()
+    {
+        Navigation.NavigateTo("/tipodocumentos");
+    }
+}

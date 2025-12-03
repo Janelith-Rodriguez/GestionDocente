@@ -1,0 +1,120 @@
+﻿@page "/cupofcoordinadores"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject ICUPOF_CoordinadorServicio CUPOFCoordinadorServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>CUPOF Coordinadores</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="CrearNuevo">Crear Nuevo</button>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Carrera ID</th>
+                <th>Coordinador ID</th>
+                <th>CUPOF</th>
+                <th>Estado Ocupación</th>
+                <th>Estado</th>
+                <th>Sede</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in cupofCoordinadores)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.CarreraId</td>
+                    <td>@item.CoordinadorId</td>
+                    <td>@item.CUPOF</td>
+                    <td>@item.Ocupado_Libre</td>
+                    <td>@(item.Estado ? "Activo" : "Inactivo")</td>
+                    <td>@item.Sede</td>
+                    <td>@(item.Activo ? "Sí" : "No")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => Editar(item.Id)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(item)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<CUPOF_Coordinador> cupofCoordinadores = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        error = false;
+        StateHasChanged();
+
+        var respuesta = await CUPOFCoordinadorServicio.GetAll("api/CUPOFCoordinadores");
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            cupofCoordinadores = respuesta.Respuesta ?? new List<CUPOF_Coordinador>();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private void CrearNuevo()
+    {
+        Navigation.NavigateTo("/cupofcoordinadores/crear");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/cupofcoordinadores/editar/{id}");
+    }
+
+    private async Task Eliminar(CUPOF_Coordinador cupof)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro de eliminar este CUPOF?"))
+            return;
+
+        var respuesta = await CUPOFCoordinadorServicio.Delete("api/CUPOFCoordinadores", cupof.Id);
+
+        if (respuesta.Error)
+        {
+            mensajeError = await respuesta.ObtenerError();
+            error = true;
+        }
+        else
+        {
+            await CargarDatos();
+        }
+    }
+}

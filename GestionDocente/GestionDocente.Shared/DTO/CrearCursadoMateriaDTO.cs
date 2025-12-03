@@ -11,26 +11,22 @@ namespace GestionDocente.Shared.DTO
 {
     public class CrearCursadoMateriaDTO
     {
-        [Required(ErrorMessage = "El alumno es necesario")]
+        [Required(ErrorMessage = "El alumno es obligatorio")]
         public int AlumnoId { get; set; }
 
-        [Required(ErrorMessage = "El turno es necesario")]
+        [Required(ErrorMessage = "El turno es obligatorio")]
         public int TurnoId { get; set; }
-        public Turno Turno { get; set; }
 
-        [Required(ErrorMessage = "La fecha de inscripción en la materia es necesario")]
+        [Required(ErrorMessage = "La fecha de inscripción es obligatoria")]
         public DateTime FechaInscripcion { get; set; }
 
-        [Required(ErrorMessage = "El año de cursado de la materia es necesario")]
-        public int Anno { get; set; }  //Año de cursado actualmente por el alumno
+        [Required(ErrorMessage = "El año de cursado es obligatorio")]
+        public int Anno { get; set; }
 
-        [Required(ErrorMessage = "El nombre es necesario")]
+        [Required(ErrorMessage = "La condición actual es obligatoria")]
         [MaxLength(50, ErrorMessage = "Máximo número de caracteres {1}.")]
-        public string CondicionActual { get; set; } //libre, regular, promocionado
+        public string CondicionActual { get; set; }
 
         public DateTime? VencimientoCondicion { get; set; }
-
-        public List<Nota>? Notas { get; set; } = new List<Nota>();
-        public List<ClaseAsistencia>? ClaseAsistencias { get; set; } = new List<ClaseAsistencia>();
     }
 }

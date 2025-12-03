@@ -22,16 +22,31 @@ builder.Services.AddDbContext<Context>(op => op.UseSqlServer("name=conn"));
 
 builder.Services.AddAutoMapper(typeof(Program));
 
-builder.Services.AddScoped<IProfesorRepositorio, ProfesorRepositorio>();
-builder.Services.AddScoped<ICursadoMateriaRepositorio, CursadoMateriaRepositorio>();
-builder.Services.AddScoped<ITurnoRepositorio, TurnoRepositorio>();
+// Repositorios - Tablas Maestras
+builder.Services.AddScoped<ITipoDocumentoRepositorio, TipoDocumentoRepositorio>();
+builder.Services.AddScoped<ICarreraRepositorio, CarreraRepositorio>();
+builder.Services.AddScoped<IMateriaRepositorio, MateriaRepositorio>();
+builder.Services.AddScoped<IPersonaRepositorio, PersonaRepositorio>();
+builder.Services.AddScoped<IPlanEstudioRepositorio, PlanEstudioRepositorio>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
-builder.Services.AddScoped<ICUPOFProfesorRepositorio, CUPOFProfesorRepositorio>();
-builder.Services.AddScoped<IMABRepositorio, MABRepositorio>();
-builder.Services.AddScoped<INotaRepositorio, NotaRepositorio>();
+
+// Repositorios - Entidades Relacionadas
+builder.Services.AddScoped<IAlumnoRepositorio, AlumnoRepositorio>();
+builder.Services.AddScoped<IProfesorRepositorio, ProfesorRepositorio>();
+builder.Services.AddScoped<ICoordinadorRepositorio, CoordinadorRepositorio>();
+builder.Services.AddScoped<ITurnoRepositorio, TurnoRepositorio>();
+builder.Services.AddScoped<IMateriaEnPlanEstudioRepositorio, MateriaEnPlanEstudioRepositorio>();
+builder.Services.AddScoped<IInscripcionCarreraRepositorio, InscripcionCarreraRepositorio>();
+builder.Services.AddScoped<ICursadoMateriaRepositorio, CursadoMateriaRepositorio>();
+builder.Services.AddScoped<IClaseRepositorio, ClaseRepositorio>();
 builder.Services.AddScoped<IEvaluacionRepositorio, EvaluacionRepositorio>();
-
-
+builder.Services.AddScoped<INotaRepositorio, NotaRepositorio>();
+builder.Services.AddScoped<IClaseAsistenciaRepositorio, ClaseAsistenciaRepositorio>();
+builder.Services.AddScoped<ICorrelatividadRepositorio, CorrelatividadRepositorio>();
+builder.Services.AddScoped<ICertificadoAlumnoRepositorio, CertificadoAlumnoRepositorio>();
+builder.Services.AddScoped<ICUPOF_CoordinadorRepositorio, CUPOF_CoordinadorRepositorio>();
+builder.Services.AddScoped<ICUPOF_ProfesorRepositorio, CUPOF_ProfesorRepositorio>();
+builder.Services.AddScoped<IMABRepositorio, MABRepositorio>();
 
 //---------------------------------------------------------------------------------------------------
 //Construcción de la aplicación

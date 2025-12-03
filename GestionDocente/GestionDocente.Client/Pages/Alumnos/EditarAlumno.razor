@@ -1,0 +1,141 @@
+﻿@page "/alumnos/editar/{Id:int}"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject IAlumnoServicio AlumnoServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+<h3>Editar Alumno</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <EditForm Model="@alumno" OnValidSubmit="@Actualizar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="usuarioId">Usuario ID:</label>
+            <InputNumber id="usuarioId" @bind-Value="alumno.UsuarioId" class="form-control" />
+            <ValidationMessage For="@(() => alumno.UsuarioId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="sexo">Sexo:</label>
+            <InputText id="sexo" @bind-Value="alumno.Sexo" class="form-control" />
+            <ValidationMessage For="@(() => alumno.Sexo)" />
+        </div>
+
+        <div class="form-group">
+            <label for="fechaNacimiento">Fecha Nacimiento:</label>
+            <InputDate id="fechaNacimiento" @bind-Value="alumno.FechaNacimiento" class="form-control" />
+            <ValidationMessage For="@(() => alumno.FechaNacimiento)" />
+        </div>
+
+        <div class="form-group">
+            <label for="edad">Edad:</label>
+            <InputNumber id="edad" @bind-Value="alumno.Edad" class="form-control" />
+            <ValidationMessage For="@(() => alumno.Edad)" />
+        </div>
+
+        <div class="form-group">
+            <label for="cuil">CUIL:</label>
+            <InputText id="cuil" @bind-Value="alumno.CUIL" class="form-control" />
+            <ValidationMessage For="@(() => alumno.CUIL)" />
+        </div>
+
+        <div class="form-group">
+            <label for="pais">País:</label>
+            <InputText id="pais" @bind-Value="alumno.Pais" class="form-control" />
+            <ValidationMessage For="@(() => alumno.Pais)" />
+        </div>
+
+        <div class="form-group">
+            <label for="provincia">Provincia:</label>
+            <InputText id="provincia" @bind-Value="alumno.Provincia" class="form-control" />
+            <ValidationMessage For="@(() => alumno.Provincia)" />
+        </div>
+
+        <div class="form-group">
+            <label for="departamento">Departamento:</label>
+            <InputText id="departamento" @bind-Value="alumno.Departamento" class="form-control" />
+            <ValidationMessage For="@(() => alumno.Departamento)" />
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="estado" @bind-Value="alumno.Estado" class="form-check-input" />
+            <label for="estado" class="form-check-label">Estado Activo</label>
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="activo" @bind-Value="alumno.Activo" class="form-check-input" />
+            <label for="activo" class="form-check-label">Activo</label>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">Actualizar</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Alumno alumno = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        StateHasChanged();
+
+        var respuesta = await AlumnoServicio.GetById("api/Alumnos", Id);
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            alumno = respuesta.Respuesta ?? new Alumno();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private async Task Actualizar()
+    {
+        var respuesta = await AlumnoServicio.Put("api/Alumnos", alumno);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/alumnos");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/alumnos");
+    }
+}

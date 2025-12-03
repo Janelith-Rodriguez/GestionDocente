@@ -10,24 +10,20 @@ namespace GestionDocente.Shared.DTO
 {
     public class CrearTurnoDTO
     {
-        [Required(ErrorMessage = "La materia es necesaria")]
-        public int MateriaId { get; set; }
+        public int? ProfesorId { get; set; }
 
-        public int? ProfesorId { get; set; } //null acepable porque las materias y sus horarios de clase existen por si solas antes de que se les asigne un profe
-        public Profesor? Profesor { get; set; }
+        [Required(ErrorMessage = "La materia en plan de estudio es obligatoria")]
+        public int MateriaEnPlanEstudioId { get; set; }
 
-        [Required(ErrorMessage = "La sede es necesaria")]
+        [Required(ErrorMessage = "La sede es obligatoria")]
         [MaxLength(45, ErrorMessage = "Máximo número de caracteres {1}.")]
         public string Sede { get; set; }
 
-        [Required(ErrorMessage = "El horario es necesaria")]
+        [Required(ErrorMessage = "El horario es obligatorio")]
         [MaxLength(30, ErrorMessage = "Máximo número de caracteres {1}.")]
         public string Horario { get; set; }
 
-        [Required(ErrorMessage = "La Año de Ciclo Lectivo es necesaria")]
-        public int AnnoCicloLectivo { get; set; } //Año del ciclo lectivo, el turno de modelado de sistemas actual tendra .AnnoCicloLectivo = 2024
-
-        //public List<CursadoMateria>? AlumnosCursando { get; set; } = new List<CursadoMateria>();
-        //public List<Clase>? Clases { get; set; } = new List<Clase>();
+        [Required(ErrorMessage = "El ciclo lectivo es obligatorio")]
+        public int AnnoCicloLectivo { get; set; }
     }
 }

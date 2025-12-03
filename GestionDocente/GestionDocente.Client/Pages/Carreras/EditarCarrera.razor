@@ -1,0 +1,107 @@
+﻿@page "/carreras/editar/{Id:int}"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject ICarreraServicio CarreraServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Editar Carrera</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <EditForm Model="@carrera" OnValidSubmit="@Actualizar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <InputText id="nombre" @bind-Value="carrera.Nombre" class="form-control" />
+            <ValidationMessage For="@(() => carrera.Nombre)" />
+        </div>
+
+        <div class="form-group">
+            <label for="duracion">Duración:</label>
+            <InputText id="duracion" @bind-Value="carrera.DuracionCarrera" class="form-control" />
+            <ValidationMessage For="@(() => carrera.DuracionCarrera)" />
+        </div>
+
+        <div class="form-group">
+            <label for="modalidad">Modalidad:</label>
+            <InputText id="modalidad" @bind-Value="carrera.Modalidad" class="form-control" />
+            <ValidationMessage For="@(() => carrera.Modalidad)" />
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="activo" @bind-Value="carrera.Activo" class="form-check-input" />
+            <label for="activo" class="form-check-label">Activo</label>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">Actualizar</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Carrera carrera = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        StateHasChanged();
+
+        var respuesta = await CarreraServicio.GetById("api/Carreras", Id);
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            carrera = respuesta.Respuesta ?? new Carrera();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private async Task Actualizar()
+    {
+        var respuesta = await CarreraServicio.Put("api/Carreras", carrera);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/carreras");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/carreras");
+    }
+}

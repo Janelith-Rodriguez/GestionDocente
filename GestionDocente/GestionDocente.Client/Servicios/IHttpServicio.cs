@@ -1,5 +1,4 @@
-﻿
-namespace GestionDocente.Client.Servicios
+﻿namespace GestionDocente.Client.Servicios
 {
     public interface IHttpServicio
     {

@@ -1,0 +1,105 @@
+﻿@page "/coordinadores/editar/{Id:int}"
+@using GestionDocente.BD.Data.Entity
+@using GestionDocente.Client.Servicios
+@inject ICoordinadorServicio CoordinadorServicio
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+<h3>Editar Coordinador</h3>
+
+@if (cargando)
+{
+    <div class="alert alert-info">Cargando...</div>
+}
+else if (error)
+{
+    <div class="alert alert-danger">@mensajeError</div>
+}
+else
+{
+    <EditForm Model="@coordinador" OnValidSubmit="@Actualizar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="usuarioId">Usuario ID:</label>
+            <InputNumber id="usuarioId" @bind-Value="coordinador.UsuarioId" class="form-control" />
+            <ValidationMessage For="@(() => coordinador.UsuarioId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="carreraId">Carrera ID:</label>
+            <InputNumber id="carreraId" @bind-Value="coordinador.CarreraId" class="form-control" />
+            <ValidationMessage For="@(() => coordinador.CarreraId)" />
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="estado" @bind-Value="coordinador.Estado" class="form-check-input" />
+            <label for="estado" class="form-check-label">Estado Activo</label>
+        </div>
+
+        <div class="form-group form-check">
+            <InputCheckbox id="activo" @bind-Value="coordinador.Activo" class="form-check-input" />
+            <label for="activo" class="form-check-label">Activo</label>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">Actualizar</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Coordinador coordinador = new();
+    private bool cargando = true;
+    private bool error = false;
+    private string mensajeError = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        StateHasChanged();
+
+        var respuesta = await CoordinadorServicio.GetById("api/Coordinadores", Id);
+
+        if (respuesta.Error)
+        {
+            error = true;
+            mensajeError = await respuesta.ObtenerError();
+        }
+        else
+        {
+            coordinador = respuesta.Respuesta ?? new Coordinador();
+        }
+
+        cargando = false;
+        StateHasChanged();
+    }
+
+    private async Task Actualizar()
+    {
+        var respuesta = await CoordinadorServicio.Put("api/Coordinadores", coordinador);
+
+        if (respuesta.Error)
+        {
+            var error = await respuesta.ObtenerError();
+            await JSRuntime.InvokeVoidAsync("alert", $"Error: {error}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/coordinadores");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/coordinadores");
+    }
+}
