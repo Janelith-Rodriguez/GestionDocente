@@ -1,4 +1,6 @@
 ﻿using System;
+﻿using GestionDocente.BD.Data.Entity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;

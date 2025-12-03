@@ -1,4 +1,7 @@
+
 ﻿using System;
+﻿using GestionDocente.BD.Data.Entity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,10 +12,12 @@ namespace GestionDocente.Shared.DTO
 {
     public class CrearClaseDTO
     {
-        [Required(ErrorMessage = "El turno es obligatorio")]
+        [Required(ErrorMessage = "El turno es necesario")]
         public int TurnoId { get; set; }
+        public Turno Turno { get; set; }
 
-        [Required(ErrorMessage = "La fecha de clase es obligatoria")]
+        [Required(ErrorMessage = "La fecha de clase es necesaria")]
+
         public DateTime Fecha { get; set; }
     }
 }

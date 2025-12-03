@@ -14,6 +14,8 @@ namespace GestionDocente.Server.Util
             CreateMap<CrearMateriaDTO, Materia>();
             CreateMap<CrearPersonaDTO, Persona>();
             CreateMap<CrearPlanEstudioDTO, PlanEstudio>();
+            CreateMap<CrearClaseAsistenciaDTO, ClaseAsistencia>();
+            CreateMap<CrearClaseDTO, Clase>();
             CreateMap<CrearUsuarioDTO, Usuario>();
 
             // Entidades Relacionadas

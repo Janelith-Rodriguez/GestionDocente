@@ -47,7 +47,8 @@ builder.Services.AddScoped<ICertificadoAlumnoRepositorio, CertificadoAlumnoRepos
 builder.Services.AddScoped<ICUPOF_CoordinadorRepositorio, CUPOF_CoordinadorRepositorio>();
 builder.Services.AddScoped<ICUPOF_ProfesorRepositorio, CUPOF_ProfesorRepositorio>();
 builder.Services.AddScoped<IMABRepositorio, MABRepositorio>();
-
+builder.Services.AddScoped<IClaseRepositorio, ClaseRepositorio>();
+builder.Services.AddScoped<IClaseAsistenciaRepositorio, ClaseAsistenciaRepositorio>();
 //---------------------------------------------------------------------------------------------------
 //Construcción de la aplicación
 var app = builder.Build();
